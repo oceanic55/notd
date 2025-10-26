@@ -122,13 +122,7 @@ const StorageManager = {
     }
   },
   
-  /**
-   * Import entries from JSON file (replaces current session)
-   * @param {File} file - The JSON file to import
-   */
-  async importFromFile(file) {
-    return await this.loadFromFile(file);
-  }
+
 };
 
 // Display Manager Module
@@ -211,10 +205,10 @@ const App = {
       container.innerHTML = `
         <div style="padding: 40px; text-align: center; color: #aaa;">
           <div style="font-size: 18px; margin-bottom: 20px;">Welcome to NOTED*</div>
-          <div style="font-size: 14px; margin-bottom: 30px;">Click LOAD to open a diary file from the data folder</div>
+          <div style="font-size: 14px; margin-bottom: 30px;">Click LOAD to open a diary file</div>
           <div style="font-size: 12px; color: #666;">
             All changes are saved in memory until you click SAVE<br>
-            Use IMPORT to switch to a different file during your session
+            Use LOAD again to switch to a different file during your session
           </div>
         </div>
       `;
@@ -258,27 +252,6 @@ const App = {
     const saveBtnHeader = document.getElementById('save-btn-header');
     if (saveBtnHeader) {
       saveBtnHeader.addEventListener('click', () => StorageManager.saveToFile());
-    }
-    
-    const importBtn = document.getElementById('import-btn');
-    const importFile = document.getElementById('import-file');
-    if (importBtn && importFile) {
-      importBtn.addEventListener('click', () => importFile.click());
-      importFile.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const entries = await StorageManager.importFromFile(file);
-          if (entries) {
-            DisplayManager.renderEntries(entries);
-            // Visual feedback
-            importBtn.style.borderColor = '#10b981';
-            setTimeout(() => {
-              importBtn.style.borderColor = '';
-            }, 1500);
-          }
-          importFile.value = ''; // Reset file input
-        }
-      });
     }
     
     // Set up sequential field prompting
