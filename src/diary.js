@@ -204,7 +204,7 @@ const App = {
     if (container) {
       container.innerHTML = `
         <div style="padding: 40px; text-align: center; color: #aaa;">
-          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.1</div>
+          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.2</div>
           <div style="font-size: 14px; margin-bottom: 30px;">LOAD to open</div>
           <div style="font-size: 12px; color: #666;">
             changes to memory unless to json<br>
