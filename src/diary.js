@@ -1,4 +1,5 @@
 // Data Models
+// Version: 1.0.4 - Fixed search highlighting
 
 /**
  * DiaryEntry represents a single diary entry
@@ -204,7 +205,7 @@ const App = {
     if (container) {
       container.innerHTML = `
         <div style="padding: 40px; text-align: center; color: #aaa;">
-          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.2</div>
+          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.3</div>
           <div style="font-size: 14px; margin-bottom: 30px;">LOAD to open</div>
           <div style="font-size: 12px; color: #666;">
             changes to memory unless to json<br>
@@ -484,6 +485,13 @@ const App = {
   },
 
   /**
+   * Escape regex special characters
+   */
+  escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  },
+
+  /**
    * Handle search input
    */
   handleSearch(query) {
@@ -534,11 +542,17 @@ const App = {
         msg.classList.add('highlight');
         matchCount++;
 
-        // Highlight matching text in note
-        if (noteEl && note.toLowerCase().includes(lowerQuery)) {
-          const regex = new RegExp(`(${query})`, 'gi');
-          const highlighted = note.replace(regex, '<span class="search-match">$1</span>');
+        // Highlight matching text in note (only if query is 3+ characters)
+        if (noteEl && query.length >= 3 && note.toLowerCase().includes(lowerQuery)) {
+          // Always use original text for highlighting
+          const originalText = noteEl.dataset.originalText || note;
+          const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(escapedQuery, 'gi');
+          const highlighted = originalText.replace(regex, match => '<span class="search-match">' + match + '</span>');
           noteEl.innerHTML = highlighted;
+        } else if (noteEl && query.length < 3) {
+          // For short queries, just show the original text without highlighting
+          noteEl.textContent = noteEl.dataset.originalText || note;
         }
       } else {
         msg.style.display = 'none';
