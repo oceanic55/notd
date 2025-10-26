@@ -204,11 +204,11 @@ const App = {
     if (container) {
       container.innerHTML = `
         <div style="padding: 40px; text-align: center; color: #aaa;">
-          <div style="font-size: 18px; margin-bottom: 20px;">Welcome to NOTED*</div>
-          <div style="font-size: 14px; margin-bottom: 30px;">Click LOAD to open a diary file</div>
+          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.0</div>
+          <div style="font-size: 14px; margin-bottom: 30px;">LOAD to open</div>
           <div style="font-size: 12px; color: #666;">
-            All changes are saved in memory until you click SAVE<br>
-            Use LOAD again to switch to a different file during your session
+            changes to memory unless to json<br>
+            switch/load alternative at will 
           </div>
         </div>
       `;
