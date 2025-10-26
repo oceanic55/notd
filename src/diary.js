@@ -13,7 +13,7 @@
 const StorageManager = {
   currentFileName: null,
   currentEntries: [],
-  
+
   /**
    * Add a new entry to current session
    * @param {DiaryEntry} entry - The diary entry to save
@@ -22,7 +22,7 @@ const StorageManager = {
     this.currentEntries.push(entry);
     console.log('Entry added to session. Total entries:', this.currentEntries.length);
   },
-  
+
   /**
    * Load entries from a JSON file
    * @param {File} file - The JSON file to load
@@ -32,11 +32,11 @@ const StorageManager = {
     try {
       const text = await file.text();
       const entries = JSON.parse(text);
-      
+
       if (!Array.isArray(entries)) {
         throw new Error('Invalid JSON format');
       }
-      
+
       this.currentFileName = file.name;
       this.currentEntries = entries;
       console.log(`Loaded ${entries.length} entries from ${file.name}`);
@@ -47,7 +47,7 @@ const StorageManager = {
       return null;
     }
   },
-  
+
   /**
    * Get current entries
    * @returns {DiaryEntry[]} Array of diary entries
@@ -55,7 +55,7 @@ const StorageManager = {
   getEntries() {
     return this.currentEntries;
   },
-  
+
   /**
    * Save current entries to a JSON file
    */
@@ -64,16 +64,16 @@ const StorageManager = {
       alert('No entries to save.');
       return;
     }
-    
+
     try {
       const dataStr = JSON.stringify(this.currentEntries, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      
+
       // Generate filename with current date
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0];
       const suggestedName = this.currentFileName || `diary-entries-${dateStr}.json`;
-      
+
       // Check if File System Access API is supported
       if ('showSaveFilePicker' in window) {
         const fileHandle = await window.showSaveFilePicker({
@@ -84,13 +84,13 @@ const StorageManager = {
             accept: { 'application/json': ['.json'] }
           }]
         });
-        
+
         const writable = await fileHandle.createWritable();
         await writable.write(dataStr);
         await writable.close();
-        
+
         console.log(`Saved ${this.currentEntries.length} entries to file`);
-        
+
         // Visual feedback
         const saveBtn = document.getElementById('save-btn-header');
         if (saveBtn) {
@@ -109,7 +109,7 @@ const StorageManager = {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        
+
         console.log(`Downloaded ${this.currentEntries.length} entries`);
       }
     } catch (e) {
@@ -121,7 +121,7 @@ const StorageManager = {
       }
     }
   },
-  
+
 
 };
 
@@ -135,7 +135,7 @@ const DisplayManager = {
     this.clearDisplay();
     entries.forEach(entry => this.appendEntry(entry));
   },
-  
+
   /**
    * Clear all displayed entries
    */
@@ -145,7 +145,7 @@ const DisplayManager = {
       container.innerHTML = '';
     }
   },
-  
+
   /**
    * Append a single entry to the display
    * @param {DiaryEntry} entry - The diary entry to append
@@ -153,43 +153,43 @@ const DisplayManager = {
   appendEntry(entry) {
     const container = document.getElementById('entries-container');
     if (!container) return;
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
-    
+
     // Left column: Date and Sender stacked
     const leftColumn = document.createElement('div');
     leftColumn.className = 'message-left';
-    
+
     const timestampSpan = document.createElement('span');
     timestampSpan.className = 'timestamp';
     timestampSpan.textContent = entry.timestamp;
-    
+
     const senderSpan = document.createElement('span');
     senderSpan.className = 'sender';
     senderSpan.textContent = entry.sender;
-    
+
     leftColumn.appendChild(timestampSpan);
     leftColumn.appendChild(senderSpan);
-    
+
     // Right column: Time and Note stacked
     const rightColumn = document.createElement('div');
     rightColumn.className = 'message-right';
-    
+
     const timeSpan = document.createElement('span');
     timeSpan.className = 'time';
     timeSpan.textContent = entry.time || '';
-    
+
     const noteSpan = document.createElement('span');
     noteSpan.className = 'note';
     noteSpan.textContent = entry.note;
-    
+
     rightColumn.appendChild(timeSpan);
     rightColumn.appendChild(noteSpan);
-    
+
     messageDiv.appendChild(leftColumn);
     messageDiv.appendChild(rightColumn);
-    
+
     container.appendChild(messageDiv);
   }
 };
@@ -204,7 +204,7 @@ const App = {
     if (container) {
       container.innerHTML = `
         <div style="padding: 40px; text-align: center; color: #aaa;">
-          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.0</div>
+          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.1</div>
           <div style="font-size: 14px; margin-bottom: 30px;">LOAD to open</div>
           <div style="font-size: 12px; color: #666;">
             changes to memory unless to json<br>
@@ -214,14 +214,14 @@ const App = {
       `;
     }
   },
-  
+
   /**
    * Initialize the application
    */
   async initialize() {
     // Show load prompt on startup
     this.showLoadPrompt();
-    
+
     // Set up event listeners
     const loadBtn = document.getElementById('load-btn');
     const loadFile = document.getElementById('load-file');
@@ -243,40 +243,40 @@ const App = {
         }
       });
     }
-    
+
     const enterBtn = document.getElementById('enter-btn');
     if (enterBtn) {
       enterBtn.addEventListener('click', () => this.handleEnterClick());
     }
-    
+
     const saveBtnHeader = document.getElementById('save-btn-header');
     if (saveBtnHeader) {
       saveBtnHeader.addEventListener('click', () => StorageManager.saveToFile());
     }
-    
+
     // Set up sequential field prompting
     const placeInput = document.getElementById('place-input');
     const noteInput = document.getElementById('note-input');
-    
+
     if (placeInput) {
       placeInput.addEventListener('keydown', (e) => this.handlePlaceKeydown(e));
       placeInput.addEventListener('input', () => this.handlePlaceInput());
     }
-    
+
     if (noteInput) {
       noteInput.addEventListener('input', () => this.handleNoteInput());
       noteInput.addEventListener('keydown', (e) => this.handleNoteKeydown(e));
     }
-    
+
     // Set up ESC key handler
     document.addEventListener('keydown', (e) => this.handleEscapeKey(e));
-    
+
     // Set up overlay click to cancel
     const overlay = document.getElementById('form-overlay');
     if (overlay) {
       overlay.addEventListener('click', () => this.resetForm());
     }
-    
+
     // Set up search functionality
     const searchInput = document.getElementById('search-input');
     const searchClear = document.getElementById('search-clear');
@@ -290,7 +290,7 @@ const App = {
       });
     }
   },
-  
+
   /**
    * Handle ENTER button click
    */
@@ -300,12 +300,12 @@ const App = {
     if (form && overlay) {
       form.style.display = 'block';
       overlay.style.display = 'block';
-      
+
       // Auto-populate date and time
       const now = new Date();
       const dateInput = document.getElementById('date-input');
       const timeInput = document.getElementById('time-input');
-      
+
       if (dateInput) {
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
@@ -313,32 +313,32 @@ const App = {
         dateInput.value = `${month}/${day}/${year}`;
         dateInput.classList.add('completed');
       }
-      
+
       if (timeInput) {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         timeInput.value = `${hours}:${minutes}`;
         timeInput.classList.add('completed');
       }
-      
+
       // Show time group and focus on place input
       const timeGroup = document.getElementById('time-group');
       const placeGroup = document.getElementById('place-group');
-      
+
       if (timeGroup) {
         timeGroup.style.display = 'block';
       }
       if (placeGroup) {
         placeGroup.style.display = 'block';
       }
-      
+
       const placeInput = document.getElementById('place-input');
       if (placeInput) {
         placeInput.focus();
       }
     }
   },
-  
+
   /**
    * Handle place keydown events
    */
@@ -358,33 +358,33 @@ const App = {
       }
     }
   },
-  
+
   /**
    * Handle place input changes
    */
   handlePlaceInput() {
     const placeInput = document.getElementById('place-input');
-    
+
     if (placeInput && placeInput.value.trim()) {
       placeInput.classList.add('completed');
     } else if (placeInput && !placeInput.value.trim()) {
       placeInput.classList.remove('completed');
     }
   },
-  
+
   /**
    * Handle note input changes
    */
   handleNoteInput() {
     const noteInput = document.getElementById('note-input');
-    
+
     if (noteInput && noteInput.value.trim()) {
       noteInput.classList.add('completed');
     } else if (noteInput && !noteInput.value.trim()) {
       noteInput.classList.remove('completed');
     }
   },
-  
+
   /**
    * Handle note keydown events
    */
@@ -397,7 +397,7 @@ const App = {
       }
     }
   },
-  
+
   /**
    * Handle SAVE button click (form save button)
    */
@@ -406,30 +406,30 @@ const App = {
     const timeInput = document.getElementById('time-input');
     const placeInput = document.getElementById('place-input');
     const noteInput = document.getElementById('note-input');
-    
+
     if (!dateInput || !timeInput || !placeInput || !noteInput) return;
-    
+
     const entry = {
       timestamp: dateInput.value.trim(),
       time: timeInput.value.trim(),
       sender: placeInput.value.trim(),
       note: noteInput.value.trim()
     };
-    
+
     // Validate fields
     if (!entry.timestamp || !entry.time || !entry.sender || !entry.note) {
       alert('Please fill in all fields');
       return;
     }
-    
+
     // Save and display entry
     StorageManager.saveEntry(entry);
     DisplayManager.appendEntry(entry);
-    
+
     // Reset form
     this.resetForm();
   },
-  
+
   /**
    * Reset and hide the entry form
    */
@@ -440,7 +440,7 @@ const App = {
     const noteInput = document.getElementById('note-input');
     const form = document.getElementById('entry-form');
     const overlay = document.getElementById('form-overlay');
-    
+
     if (dateInput) {
       dateInput.value = '';
       dateInput.classList.remove('completed');
@@ -457,20 +457,20 @@ const App = {
       noteInput.value = '';
       noteInput.classList.remove('completed');
     }
-    
+
     if (form) form.style.display = 'none';
     if (overlay) overlay.style.display = 'none';
-    
+
     // Reset field visibility
     const timeGroup = document.getElementById('time-group');
     const placeGroup = document.getElementById('place-group');
     const noteGroup = document.getElementById('note-group');
-    
+
     if (timeGroup) timeGroup.style.display = 'none';
     if (placeGroup) placeGroup.style.display = 'none';
     if (noteGroup) noteGroup.style.display = 'none';
   },
-  
+
   /**
    * Handle ESC key to cancel form
    */
@@ -482,7 +482,7 @@ const App = {
       }
     }
   },
-  
+
   /**
    * Handle search input
    */
@@ -490,12 +490,12 @@ const App = {
     const searchClear = document.getElementById('search-clear');
     const searchResults = document.getElementById('search-results');
     const messages = document.querySelectorAll('.message');
-    
+
     // Show/hide clear button
     if (searchClear) {
       searchClear.style.display = query.trim() ? 'block' : 'none';
     }
-    
+
     if (!query.trim()) {
       // Clear search - show all entries
       messages.forEach(msg => {
@@ -511,29 +511,29 @@ const App = {
       if (searchResults) searchResults.textContent = '';
       return;
     }
-    
+
     const lowerQuery = query.toLowerCase();
     let matchCount = 0;
-    
+
     messages.forEach(msg => {
       const timestamp = msg.querySelector('.timestamp')?.textContent || '';
       const sender = msg.querySelector('.sender')?.textContent || '';
       const time = msg.querySelector('.time')?.textContent || '';
       const noteEl = msg.querySelector('.note');
       const note = noteEl?.textContent || '';
-      
+
       // Store original text if not already stored
       if (noteEl && !noteEl.dataset.originalText) {
         noteEl.dataset.originalText = note;
       }
-      
+
       const searchText = `${timestamp} ${sender} ${time} ${note}`.toLowerCase();
-      
+
       if (searchText.includes(lowerQuery)) {
         msg.style.display = 'flex';
         msg.classList.add('highlight');
         matchCount++;
-        
+
         // Highlight matching text in note
         if (noteEl && note.toLowerCase().includes(lowerQuery)) {
           const regex = new RegExp(`(${query})`, 'gi');
@@ -549,10 +549,10 @@ const App = {
         }
       }
     });
-    
+
     if (searchResults) {
-      searchResults.textContent = matchCount === 0 
-        ? 'No matches found' 
+      searchResults.textContent = matchCount === 0
+        ? 'No matches found'
         : `${matchCount} ${matchCount === 1 ? 'entry' : 'entries'} found`;
     }
   }
