@@ -440,6 +440,7 @@ body {
 
     #content {
         padding: 10px;
+        padding-top: 160px;
         padding-bottom: 100px;
         width: 100%;
         max-width: 100vw;
