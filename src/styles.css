@@ -164,21 +164,35 @@ body {
     color: #333;
 }
 
-.inline-edit-input {
-    background-color: #555;
-    color: white;
-    border: 1px solid #ffd700;
-    padding: 2px 4px;
-    font-family: monospace;
-    font-size: inherit;
-    width: 100%;
-    box-sizing: border-box;
+.editable-field.editing {
+    background-color: #ffd700;
+    color: #333;
+    outline: none;
 }
 
-.inline-edit-input:focus {
-    outline: none;
-    border-color: #ffd700;
-    background-color: #666;
+.editable-field[contenteditable="true"] {
+    background-color: #ffd700 !important;
+    color: #333 !important;
+    outline: none !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+.timestamp[contenteditable="true"],
+.sender[contenteditable="true"],
+.time[contenteditable="true"] {
+    display: inline-block !important;
+}
+
+.note[contenteditable="true"] {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
 }
 
 #edit-btn.active {
@@ -217,6 +231,8 @@ body {
     color: white;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    white-space: normal;
+    display: block;
 }
 
 #footer {

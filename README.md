@@ -1,16 +1,8 @@
 # NOTD*
 
-structure:
+# WE
+# SERVE
+# NOTES*
 
-```json
-[
-  {
-    "timestamp": "10/26/25",
-    "time": "13:04",
-    "sender": "Zulu",
-    "note": "Entry here..."
-  }
-]
-```
-
+NOTD* 1.1.2
 

@@ -279,8 +279,8 @@ const App = {
     const entriesContainer = document.getElementById('entries-container');
     if (entriesContainer) {
       entriesContainer.addEventListener('click', (e) => {
-        if (this.editMode && e.target.classList.contains('editable-field')) {
-          this.handleInlineEdit(e.target);
+        if (EditMode.isActive && e.target.classList.contains('editable-field')) {
+          EditMode.startEdit(e.target);
         }
       });
     }
@@ -326,74 +326,10 @@ const App = {
    * Toggle edit mode on/off
    */
   toggleEditMode() {
-    this.editMode = !this.editMode;
-    const editBtn = document.getElementById('edit-btn');
-    const container = document.getElementById('entries-container');
-
-    if (this.editMode) {
-      editBtn.classList.add('active');
-      container.classList.add('edit-mode');
-    } else {
-      editBtn.classList.remove('active');
-      container.classList.remove('edit-mode');
-    }
+    EditMode.toggle();
   },
 
-  /**
-   * Handle inline editing of a field
-   */
-  handleInlineEdit(element) {
-    if (!element || element.querySelector('input')) return; // Already editing
 
-    const index = parseInt(element.dataset.index);
-    const field = element.dataset.field;
-    const originalValue = element.textContent;
-
-    // Create input element
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = originalValue;
-    input.className = 'inline-edit-input';
-
-    // Replace text with input
-    element.textContent = '';
-    element.appendChild(input);
-    input.focus();
-    input.select();
-
-    // Save on Enter or blur
-    const saveEdit = () => {
-      const newValue = input.value.trim();
-
-      if (newValue && newValue !== originalValue) {
-        // Update the entry
-        const entries = StorageManager.getEntries();
-        if (index >= 0 && index < entries.length) {
-          const fieldMap = {
-            'timestamp': 'timestamp',
-            'sender': 'sender',
-            'time': 'time',
-            'note': 'note'
-          };
-          entries[index][fieldMap[field]] = newValue;
-          element.textContent = newValue;
-        }
-      } else {
-        // Restore original value
-        element.textContent = originalValue;
-      }
-    };
-
-    input.addEventListener('blur', saveEdit);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        input.blur();
-      } else if (e.key === 'Escape') {
-        element.textContent = originalValue;
-      }
-    });
-  },
 
   /**
    * Handle ENTER button click
