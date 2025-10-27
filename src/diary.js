@@ -305,7 +305,12 @@ const App = {
     // Set up overlay click to cancel
     const overlay = document.getElementById('form-overlay');
     if (overlay) {
-      overlay.addEventListener('click', () => this.resetForm());
+      overlay.addEventListener('click', () => {
+        const form = document.getElementById('entry-form');
+        if (form && form.style.display === 'block') {
+          this.resetForm();
+        }
+      });
     }
 
     // Set up search functionality
@@ -530,8 +535,13 @@ const App = {
   handleEscapeKey(e) {
     if (e.key === 'Escape') {
       const form = document.getElementById('entry-form');
+      const aiForm = document.getElementById('ai-entry-form');
       if (form && form.style.display === 'block') {
         this.resetForm();
+      } else if (aiForm && aiForm.style.display === 'block') {
+        if (window.LLMEntry) {
+          window.LLMEntry.resetAIForm();
+        }
       }
     }
   },

@@ -251,8 +251,10 @@ body {
 
 #load-btn,
 #enter-btn,
+#ai-enter-btn,
 #save-btn-header,
-#edit-btn {
+#edit-btn,
+#api-key-btn {
     background-color: #555;
     color: white;
     border: 1px solid #777;
@@ -265,12 +267,37 @@ body {
 
 #load-btn:hover,
 #enter-btn:hover,
+#ai-enter-btn:hover,
 #save-btn-header:hover,
-#edit-btn:hover {
+#edit-btn:hover,
+#api-key-btn:hover {
     background-color: #FF5100;
 }
 
-#entry-form {
+#ai-enter-btn {
+    background-color: #6366f1;
+    border-color: #6366f1;
+}
+
+#ai-enter-btn:hover {
+    background-color: #4f46e5;
+}
+
+#voice-btn:hover {
+    background-color: #555 !important;
+}
+
+#voice-btn:active {
+    transform: scale(0.95);
+}
+
+#api-key-btn {
+    padding: 6px 10px;
+    font-size: 16px;
+}
+
+#entry-form,
+#ai-entry-form {
     display: none;
     position: fixed;
     top: 50%;
@@ -283,6 +310,10 @@ body {
     z-index: 1000;
     min-width: 320px;
     max-width: 90vw;
+}
+
+#ai-entry-form {
+    min-width: 400px;
 }
 
 #form-overlay {
@@ -371,6 +402,14 @@ body {
         min-width: 0;
         box-sizing: border-box;
         white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 8px;
+    }
+
+    #api-key-btn {
+        flex: 0 0 auto;
+        min-width: 32px;
+        padding: 6px 8px;
     }
 
     #header-title {
@@ -418,10 +457,15 @@ body {
         font-size: 11px;
     }
 
-    #entry-form {
+    #entry-form,
+    #ai-entry-form {
         min-width: 280px;
         max-width: 90vw;
         width: 90%;
+    }
+
+    #ai-text-input {
+        max-width: 100% !important;
     }
 
     .form-group input {
