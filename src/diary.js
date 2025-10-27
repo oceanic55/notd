@@ -139,7 +139,7 @@ const DisplayManager = {
    */
   renderEntries(entries) {
     this.clearDisplay();
-    entries.forEach(entry => this.appendEntry(entry));
+    entries.forEach((entry, index) => this.appendEntry(entry, index));
   },
 
   /**
@@ -155,25 +155,31 @@ const DisplayManager = {
   /**
    * Append a single entry to the display
    * @param {DiaryEntry} entry - The diary entry to append
+   * @param {number} index - The index of the entry in the array
    */
-  appendEntry(entry) {
+  appendEntry(entry, index) {
     const container = document.getElementById('entries-container');
     if (!container) return;
 
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
+    messageDiv.dataset.index = index;
 
     // Left column: Date and Sender stacked
     const leftColumn = document.createElement('div');
     leftColumn.className = 'message-left';
 
     const timestampSpan = document.createElement('span');
-    timestampSpan.className = 'timestamp';
+    timestampSpan.className = 'timestamp editable-field';
     timestampSpan.textContent = entry.timestamp;
+    timestampSpan.dataset.field = 'timestamp';
+    timestampSpan.dataset.index = index;
 
     const senderSpan = document.createElement('span');
-    senderSpan.className = 'sender';
+    senderSpan.className = 'sender editable-field';
     senderSpan.textContent = entry.sender;
+    senderSpan.dataset.field = 'sender';
+    senderSpan.dataset.index = index;
 
     leftColumn.appendChild(timestampSpan);
     leftColumn.appendChild(senderSpan);
@@ -183,12 +189,16 @@ const DisplayManager = {
     rightColumn.className = 'message-right';
 
     const timeSpan = document.createElement('span');
-    timeSpan.className = 'time';
+    timeSpan.className = 'time editable-field';
     timeSpan.textContent = entry.time || '';
+    timeSpan.dataset.field = 'time';
+    timeSpan.dataset.index = index;
 
     const noteSpan = document.createElement('span');
-    noteSpan.className = 'note';
+    noteSpan.className = 'note editable-field';
     noteSpan.textContent = entry.note;
+    noteSpan.dataset.field = 'note';
+    noteSpan.dataset.index = index;
 
     rightColumn.appendChild(timeSpan);
     rightColumn.appendChild(noteSpan);
@@ -202,6 +212,9 @@ const DisplayManager = {
 
 // Application Controller
 const App = {
+  editMode: false,
+  editingIndex: null,
+
   /**
    * Show load prompt on startup
    */
@@ -257,6 +270,21 @@ const App = {
       saveBtnHeader.addEventListener('click', () => StorageManager.saveToFile());
     }
 
+    const editBtn = document.getElementById('edit-btn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => this.toggleEditMode());
+    }
+
+    // Set up click handler for editable fields (using event delegation)
+    const entriesContainer = document.getElementById('entries-container');
+    if (entriesContainer) {
+      entriesContainer.addEventListener('click', (e) => {
+        if (this.editMode && e.target.classList.contains('editable-field')) {
+          this.handleInlineEdit(e.target);
+        }
+      });
+    }
+
     // Set up sequential field prompting
     const placeInput = document.getElementById('place-input');
     const noteInput = document.getElementById('note-input');
@@ -295,9 +323,84 @@ const App = {
   },
 
   /**
+   * Toggle edit mode on/off
+   */
+  toggleEditMode() {
+    this.editMode = !this.editMode;
+    const editBtn = document.getElementById('edit-btn');
+    const container = document.getElementById('entries-container');
+
+    if (this.editMode) {
+      editBtn.classList.add('active');
+      container.classList.add('edit-mode');
+    } else {
+      editBtn.classList.remove('active');
+      container.classList.remove('edit-mode');
+    }
+  },
+
+  /**
+   * Handle inline editing of a field
+   */
+  handleInlineEdit(element) {
+    if (!element || element.querySelector('input')) return; // Already editing
+
+    const index = parseInt(element.dataset.index);
+    const field = element.dataset.field;
+    const originalValue = element.textContent;
+
+    // Create input element
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = originalValue;
+    input.className = 'inline-edit-input';
+
+    // Replace text with input
+    element.textContent = '';
+    element.appendChild(input);
+    input.focus();
+    input.select();
+
+    // Save on Enter or blur
+    const saveEdit = () => {
+      const newValue = input.value.trim();
+
+      if (newValue && newValue !== originalValue) {
+        // Update the entry
+        const entries = StorageManager.getEntries();
+        if (index >= 0 && index < entries.length) {
+          const fieldMap = {
+            'timestamp': 'timestamp',
+            'sender': 'sender',
+            'time': 'time',
+            'note': 'note'
+          };
+          entries[index][fieldMap[field]] = newValue;
+          element.textContent = newValue;
+        }
+      } else {
+        // Restore original value
+        element.textContent = originalValue;
+      }
+    };
+
+    input.addEventListener('blur', saveEdit);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        input.blur();
+      } else if (e.key === 'Escape') {
+        element.textContent = originalValue;
+      }
+    });
+  },
+
+  /**
    * Handle ENTER button click
    */
   handleEnterClick() {
+    this.editingIndex = null; // Clear editing mode
+
     const form = document.getElementById('entry-form');
     const overlay = document.getElementById('form-overlay');
     if (form && overlay) {
@@ -425,9 +528,17 @@ const App = {
       return;
     }
 
-    // Save and display entry
-    StorageManager.saveEntry(entry);
-    DisplayManager.appendEntry(entry);
+    // Check if we're editing or creating new
+    if (this.editingIndex !== null) {
+      // Update existing entry
+      StorageManager.currentEntries[this.editingIndex] = entry;
+      DisplayManager.renderEntries(StorageManager.getEntries());
+      this.editingIndex = null;
+    } else {
+      // Save new entry
+      StorageManager.saveEntry(entry);
+      DisplayManager.appendEntry(entry, StorageManager.currentEntries.length - 1);
+    }
 
     // Reset form
     this.resetForm();
@@ -443,6 +554,9 @@ const App = {
     const noteInput = document.getElementById('note-input');
     const form = document.getElementById('entry-form');
     const overlay = document.getElementById('form-overlay');
+
+    // Clear editing state
+    this.editingIndex = null;
 
     if (dateInput) {
       dateInput.value = '';
@@ -584,12 +698,12 @@ document.addEventListener('DOMContentLoaded', () => {
     welcomeTitle.style.fontSize = '18px';
     welcomeTitle.style.marginBottom = '30px';
   }
-  
+
   // Clear search field on page load
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.value = '';
   }
-  
+
   App.initialize();
 });

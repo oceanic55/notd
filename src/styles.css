@@ -144,6 +144,46 @@ body {
     margin-bottom: 10px;
     display: flex;
     gap: 40px;
+    position: relative;
+}
+
+.editable-field {
+    cursor: default;
+    transition: background-color 0.2s;
+}
+
+.edit-mode .editable-field {
+    cursor: pointer;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 2px;
+}
+
+.edit-mode .editable-field:hover {
+    background-color: #ffd700;
+    color: #333;
+}
+
+.inline-edit-input {
+    background-color: #555;
+    color: white;
+    border: 1px solid #ffd700;
+    padding: 2px 4px;
+    font-family: monospace;
+    font-size: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.inline-edit-input:focus {
+    outline: none;
+    border-color: #ffd700;
+    background-color: #666;
+}
+
+#edit-btn.active {
+    background-color: #FF5100;
+    border-color: #FF5100;
 }
 
 .message-left {
@@ -195,7 +235,8 @@ body {
 
 #load-btn,
 #enter-btn,
-#save-btn-header {
+#save-btn-header,
+#edit-btn {
     background-color: #555;
     color: white;
     border: 1px solid #777;
@@ -208,7 +249,8 @@ body {
 
 #load-btn:hover,
 #enter-btn:hover,
-#save-btn-header:hover {
+#save-btn-header:hover,
+#edit-btn:hover {
     background-color: #FF5100;
 }
 
@@ -309,11 +351,9 @@ body {
     }
 
     #header-buttons button {
-        flex: 1 1 0;
+        flex: 1 1 auto;
         min-width: 0;
         box-sizing: border-box;
-        overflow: hidden;
-        text-overflow: ellipsis;
         white-space: nowrap;
     }
 
