@@ -41,6 +41,11 @@ const StorageManager = {
       this.currentFileName = file.name;
       this.currentEntries = entries;
       console.log(`Loaded ${entries.length} entries from ${file.name}`);
+
+      // Hide welcome message when file is loaded
+      const welcome = document.getElementById('welcome-message');
+      if (welcome) welcome.style.display = 'none';
+
       return entries;
     } catch (e) {
       console.error('Error loading file:', e);
@@ -201,19 +206,10 @@ const App = {
    * Show load prompt on startup
    */
   showLoadPrompt() {
+    const welcome = document.getElementById('welcome-message');
     const container = document.getElementById('entries-container');
-    if (container) {
-      container.innerHTML = `
-        <div style="padding: 40px; text-align: center; color: #aaa;">
-          <div style="font-size: 18px; margin-bottom: 20px;">NOTD* 1.0.3</div>
-          <div style="font-size: 14px; margin-bottom: 30px;">LOAD to open</div>
-          <div style="font-size: 12px; color: #666;">
-            changes to memory unless to json<br>
-            switch/load alternative at will 
-          </div>
-        </div>
-      `;
-    }
+    if (welcome) welcome.style.display = 'block';
+    if (container) container.innerHTML = '';
   },
 
   /**
@@ -234,6 +230,12 @@ const App = {
           const entries = await StorageManager.loadFromFile(file);
           if (entries) {
             DisplayManager.renderEntries(entries);
+            // Clear search field when loading new file
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+              searchInput.value = '';
+              this.handleSearch('');
+            }
             // Visual feedback
             loadBtn.style.borderColor = '#10b981';
             setTimeout(() => {
@@ -574,5 +576,20 @@ const App = {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Copy footer content to welcome message
+  const footer = document.querySelector('#footer div');
+  const welcomeTitle = document.getElementById('welcome-title');
+  if (footer && welcomeTitle) {
+    welcomeTitle.textContent = footer.textContent;
+    welcomeTitle.style.fontSize = '18px';
+    welcomeTitle.style.marginBottom = '30px';
+  }
+  
+  // Clear search field on page load
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.value = '';
+  }
+  
   App.initialize();
 });
