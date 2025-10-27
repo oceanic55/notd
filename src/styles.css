@@ -282,11 +282,12 @@ body {
 }
 
 #voice-btn:hover {
-    background-color: #555 !important;
+    background-color: #FF5100 !important;
 }
 
-#voice-btn:active {
-    transform: scale(0.95);
+#voice-btn.recording {
+    background-color: #ef4444 !important;
+    border-color: #ef4444 !important;
 }
 
 

@@ -83,11 +83,10 @@ const LLMEntry = {
 
     this.recognition.onstart = () => {
       this.isListening = true;
-      this.updateVoiceStatus('Listening... (click to stop)');
+      this.updateVoiceStatus('Listening... (click VOICE to stop)');
       const voiceBtn = document.getElementById('voice-btn');
       if (voiceBtn) {
-        voiceBtn.style.backgroundColor = '#ef4444';
-        voiceBtn.style.borderColor = '#ef4444';
+        voiceBtn.classList.add('recording');
       }
     };
 
@@ -181,8 +180,7 @@ const LLMEntry = {
     this.updateVoiceStatus('');
     const voiceBtn = document.getElementById('voice-btn');
     if (voiceBtn) {
-      voiceBtn.style.backgroundColor = '#444';
-      voiceBtn.style.borderColor = '#666';
+      voiceBtn.classList.remove('recording');
     }
   },
 
@@ -355,7 +353,7 @@ const LLMEntry = {
 
     this.isProcessing = true;
     if (processBtn) {
-      processBtn.textContent = 'Processing...';
+      processBtn.textContent = 'PROCESSING...';
       processBtn.disabled = true;
     }
 
@@ -394,7 +392,7 @@ const LLMEntry = {
     } finally {
       this.isProcessing = false;
       if (processBtn) {
-        processBtn.textContent = 'Process with AI';
+        processBtn.textContent = 'PROCESS';
         processBtn.disabled = false;
       }
     }

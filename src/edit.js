@@ -87,12 +87,8 @@ const EditMode = {
 
     // Key handler
     const handleKey = (e) => {
-      if (e.key === 'Enter' && field !== 'note') {
-        // Enter saves for short fields
-        e.preventDefault();
-        element.blur();
-      } else if (e.key === 'Enter' && e.ctrlKey && field === 'note') {
-        // Ctrl+Enter saves for notes
+      if (e.key === 'Enter') {
+        // Enter saves for all fields
         e.preventDefault();
         element.blur();
       } else if (e.key === 'Escape') {
