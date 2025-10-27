@@ -18,12 +18,6 @@ const LLMEntry = {
       aiEnterBtn.addEventListener('click', () => this.handleAIEnterClick());
     }
 
-    // Set up API key settings button
-    const apiKeyBtn = document.getElementById('api-key-btn');
-    if (apiKeyBtn) {
-      apiKeyBtn.addEventListener('click', () => this.promptForApiKey(true));
-    }
-
     // Set up AI form buttons
     const aiProcessBtn = document.getElementById('ai-process-btn');
     if (aiProcessBtn) {
