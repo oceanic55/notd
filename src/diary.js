@@ -311,9 +311,13 @@ const DisplayManager = {
         const container = document.getElementById('entries-container');
         if (!container) return;
 
+        // Create wrapper for swipe functionality
+        const wrapper = document.createElement('div');
+        wrapper.className = 'message-wrapper';
+        wrapper.dataset.index = index;
+
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message';
-        messageDiv.dataset.index = index;
 
         // Left column: Date and Sender stacked
         const leftColumn = document.createElement('div');
@@ -356,7 +360,14 @@ const DisplayManager = {
         messageDiv.appendChild(leftColumn);
         messageDiv.appendChild(rightColumn);
 
-        container.appendChild(messageDiv);
+        // Create delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-button';
+        deleteBtn.textContent = 'DELETE';
+
+        wrapper.appendChild(messageDiv);
+        wrapper.appendChild(deleteBtn);
+        container.appendChild(wrapper);
     }
 };
 
@@ -711,6 +722,47 @@ const App = {
     },
 
     /**
+     * Handle NOTD* toggle button click
+     */
+    handleNotdToggle() {
+        const hasEntries = StorageManager.currentEntries.length > 0;
+        
+        if (hasEntries) {
+            // Unload current file
+            StorageManager.currentEntries = [];
+            StorageManager.currentFileName = null;
+            DisplayManager.clearDisplay();
+            
+            // Clear localStorage
+            localStorage.removeItem('diary_entries');
+            localStorage.removeItem('diary_filename');
+            localStorage.removeItem('diary_timestamp');
+            
+            // Clear footer timestamp
+            StorageManager.clearFooterTimestamp();
+            
+            // Show welcome message
+            const welcome = document.getElementById('welcome-message');
+            if (welcome) welcome.style.display = 'block';
+            
+            // Clear search
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = '';
+                this.handleSearch('');
+            }
+            
+            console.log('Unloaded current file');
+        } else {
+            // Trigger load file dialog
+            const loadFile = document.getElementById('load-file');
+            if (loadFile) {
+                loadFile.click();
+            }
+        }
+    },
+
+    /**
      * Handle search input
      */
     handleSearch(query) {
@@ -806,6 +858,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.value = '';
+    }
+
+    // Set up NOTD* toggle button
+    const notdToggle = document.getElementById('notd-toggle-link');
+    if (notdToggle) {
+        notdToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            App.handleNotdToggle();
+        });
+    }
+
+    // Initialize swipe-to-delete
+    if (window.SwipeDeleteHandler) {
+        const swipeHandler = new SwipeDeleteHandler();
+        swipeHandler.init();
     }
 
     App.initialize();

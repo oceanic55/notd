@@ -140,13 +140,25 @@ body {
     border-radius: 2px;
 }
 
-.message {
+.message-wrapper {
+    position: relative;
+    overflow: hidden;
     margin-bottom: 10px;
+    background-color: #1a1a1a;
+}
+
+.message {
     display: flex;
     gap: 40px;
     position: relative;
     max-width: 100%;
-    overflow: hidden;
+    background-color: #333;
+    transition: transform 0.3s ease-out;
+    touch-action: pan-y;
+}
+
+.message.swiping {
+    transition: none;
 }
 
 .editable-field {
@@ -530,4 +542,39 @@ body {
     .message {
         max-width: 100%;
     }
+
+    .delete-button {
+        width: 70px;
+        font-size: 12px;
+    }
+}
+
+/* Swipe-to-delete styles */
+.delete-button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    z-index: 1;
+}
+
+.delete-button.visible {
+    opacity: 1;
+}
+
+.delete-button:active {
+    background-color: #dc2626;
 }
