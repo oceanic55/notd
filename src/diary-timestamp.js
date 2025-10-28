@@ -1,5 +1,5 @@
 // Data Models
-// Version: 1.0.5 - Added timestamp system for cache busting
+// Version: 1.0.5 - Added timestamp system
 
 /**
  * DiaryEntry represents a single diary entry
@@ -127,7 +127,7 @@ const StorageManager = {
 
         // Parse timestamp
         const [month, day, hours, minutes] = timestamp.split('-');
-        const formattedTime = `V. ${month}.${day}::${hours}:${minutes}`;
+        const formattedTime = `${month}/${day} ${hours}:${minutes}`;
 
         // Check if timestamp span already exists
         let timestampSpan = footer.querySelector('.last-saved');
@@ -141,7 +141,7 @@ const StorageManager = {
             footer.appendChild(timestampSpan);
         }
 
-        timestampSpan.textContent = formattedTime;
+        timestampSpan.textContent = `Saved: ${formattedTime}`;
     },
 
     /**
