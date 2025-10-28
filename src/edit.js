@@ -73,6 +73,11 @@ const EditMode = {
             'note': 'note'
           };
           entries[index][fieldMap[field]] = newValue;
+          
+          // Save to localStorage after edit
+          if (window.StorageManager) {
+            StorageManager.saveToLocalStorage();
+          }
         }
         
         // For note field, re-linkify URLs after saving

@@ -16,11 +16,44 @@ const StorageManager = {
   currentEntries: [],
 
   /**
+   * Save entries to localStorage for auto-load
+   */
+  saveToLocalStorage() {
+    try {
+      localStorage.setItem('diary_entries', JSON.stringify(this.currentEntries));
+      localStorage.setItem('diary_filename', this.currentFileName || '');
+    } catch (e) {
+      console.error('Failed to save to localStorage:', e);
+    }
+  },
+
+  /**
+   * Load entries from localStorage
+   */
+  loadFromLocalStorage() {
+    try {
+      const savedEntries = localStorage.getItem('diary_entries');
+      const savedFileName = localStorage.getItem('diary_filename');
+      
+      if (savedEntries) {
+        this.currentEntries = JSON.parse(savedEntries);
+        this.currentFileName = savedFileName || null;
+        console.log(`Auto-loaded ${this.currentEntries.length} entries from localStorage`);
+        return this.currentEntries;
+      }
+    } catch (e) {
+      console.error('Failed to load from localStorage:', e);
+    }
+    return null;
+  },
+
+  /**
    * Add a new entry to current session
    * @param {DiaryEntry} entry - The diary entry to save
    */
   saveEntry(entry) {
     this.currentEntries.push(entry);
+    this.saveToLocalStorage(); // Auto-save to localStorage
     console.log('Entry added to session. Total entries:', this.currentEntries.length);
   },
 
@@ -40,6 +73,7 @@ const StorageManager = {
 
       this.currentFileName = file.name;
       this.currentEntries = entries;
+      this.saveToLocalStorage(); // Save to localStorage for auto-load
       console.log(`Loaded ${entries.length} entries from ${file.name}`);
 
       // Hide welcome message when file is loaded
@@ -96,6 +130,9 @@ const StorageManager = {
         await writable.close();
 
         console.log(`Saved ${this.currentEntries.length} entries to file`);
+        
+        // Save to localStorage as well
+        this.saveToLocalStorage();
 
         // Visual feedback
         const saveBtn = document.getElementById('save-btn-header');
@@ -117,6 +154,9 @@ const StorageManager = {
         URL.revokeObjectURL(url);
 
         console.log(`Downloaded ${this.currentEntries.length} entries`);
+        
+        // Save to localStorage as well
+        this.saveToLocalStorage();
       }
     } catch (e) {
       if (e.name === 'AbortError') {
@@ -248,8 +288,17 @@ const App = {
    * Initialize the application
    */
   async initialize() {
-    // Show load prompt on startup
-    this.showLoadPrompt();
+    // Try to auto-load from localStorage
+    const savedEntries = StorageManager.loadFromLocalStorage();
+    if (savedEntries && savedEntries.length > 0) {
+      DisplayManager.renderEntries(savedEntries);
+      const welcome = document.getElementById('welcome-message');
+      if (welcome) welcome.style.display = 'none';
+      console.log('Auto-loaded previous session');
+    } else {
+      // Show load prompt if no saved data
+      this.showLoadPrompt();
+    }
 
     // Set up event listeners
     const loadBtn = document.getElementById('load-btn');
