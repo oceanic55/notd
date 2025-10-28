@@ -403,10 +403,8 @@ const App = {
         }
 
         // Set up event listeners
-        const loadBtn = document.getElementById('load-btn');
         const loadFile = document.getElementById('load-file');
-        if (loadBtn && loadFile) {
-            loadBtn.addEventListener('click', () => loadFile.click());
+        if (loadFile) {
             loadFile.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 if (file) {
@@ -419,11 +417,6 @@ const App = {
                             searchInput.value = '';
                             this.handleSearch('');
                         }
-                        // Visual feedback
-                        loadBtn.style.borderColor = '#10b981';
-                        setTimeout(() => {
-                            loadBtn.style.borderColor = '';
-                        }, 1500);
                     }
                     loadFile.value = ''; // Reset file input
                 }
