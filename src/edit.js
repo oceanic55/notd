@@ -74,10 +74,20 @@ const EditMode = {
           };
           entries[index][fieldMap[field]] = newValue;
         }
-        element.textContent = newValue;
+        
+        // For note field, re-linkify URLs after saving
+        if (field === 'note' && window.DisplayManager) {
+          element.innerHTML = DisplayManager.linkifyUrls(newValue);
+        } else {
+          element.textContent = newValue;
+        }
       } else {
-        // Restore original
-        element.textContent = originalText;
+        // Restore original - re-linkify if note field
+        if (field === 'note' && window.DisplayManager) {
+          element.innerHTML = DisplayManager.linkifyUrls(originalText);
+        } else {
+          element.textContent = originalText;
+        }
       }
       
       // Clean up

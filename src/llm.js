@@ -5,6 +5,7 @@ const LLMEntry = {
   isProcessing: false,
   recognition: null,
   isListening: false,
+  finalTranscript: '',
 
   /**
    * Initialize LLM module - check for API key
@@ -40,21 +41,19 @@ const LLMEntry = {
       });
     }
 
-    // Set up Enter key in textarea to process
-    const textInput = document.getElementById('ai-text-input');
-    if (textInput) {
-      textInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.ctrlKey) {
-          e.preventDefault();
-          this.handleAIProcess();
-        }
-      });
-    }
-
     // Set up voice button
     const voiceBtn = document.getElementById('voice-btn');
     if (voiceBtn) {
       voiceBtn.addEventListener('click', () => this.toggleVoiceInput());
+    }
+
+    // Set up API settings link
+    const apiSettingsLink = document.getElementById('api-settings-link');
+    if (apiSettingsLink) {
+      apiSettingsLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.promptForApiKey(true);
+      });
     }
 
     // Initialize speech recognition
@@ -78,11 +77,17 @@ const LLMEntry = {
     this.recognition.interimResults = true;
     this.recognition.lang = 'en-US';
 
-    let finalTranscript = '';
     let interimTranscript = '';
 
     this.recognition.onstart = () => {
       this.isListening = true;
+      // Preserve existing text in the field
+      const textInput = document.getElementById('ai-text-input');
+      if (textInput && textInput.value) {
+        this.finalTranscript = textInput.value;
+      } else {
+        this.finalTranscript = '';
+      }
       this.updateVoiceStatus('Listening... (click VOICE to stop)');
       const voiceBtn = document.getElementById('voice-btn');
       if (voiceBtn) {
@@ -96,7 +101,7 @@ const LLMEntry = {
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
+          this.finalTranscript += transcript + ' ';
         } else {
           interimTranscript += transcript;
         }
@@ -104,7 +109,7 @@ const LLMEntry = {
 
       const textInput = document.getElementById('ai-text-input');
       if (textInput) {
-        textInput.value = finalTranscript + interimTranscript;
+        textInput.value = this.finalTranscript + interimTranscript;
       }
     };
 
@@ -295,11 +300,11 @@ const LLMEntry = {
         'Authorization': `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',
-            content: 'Extract location and activity from the user\'s text. This text may come from voice transcription and could contain errors from accented speech or misheard words.\n\nListen carefully for:\n1. PLACE: The primary location, venue, or place name mentioned (e.g., "Starbucks", "Central Park", "Paris", "Osaka")\n2. NOTE: Carefully review the entire entry and note every activity, event, time, movement, or content that is described, ensuring nothing is missed. Note all details in a bulleted list, covering every action, time, planned travel, intended actions, and current events or activities mentioned in the entry. Extract and note every single detail from the entry, such as times, movements, planned events, and ongoing activities, without omitting any.\n\nIMPORTANT Rules:\n- DO NOT repeat the location in the NOTE if it\'s already captured in PLACE\n- Avoid redundancy: if the place is "Osaka", don\'t write "Currently in Osaka" in the note\n- Focus the NOTE on activities, actions, events, and details - not restating the location\n- Only mention additional locations in NOTE if they are different from PLACE (e.g., travel plans to another city)\n\nVoice Transcription Corrections:\n- Watch for voice transcription errors, misspellings, or phonetic mistakes from accented speech\n- Correct obvious errors intelligently (e.g., "fall spell PHO" → "pho, spelled PHO")\n- Fix misheard words that don\'t make sense in context\n- Preserve the intended meaning while correcting transcription mistakes\n- Common patterns: homophones, phonetic spellings, missing punctuation\n\nRespond ONLY with valid JSON in this EXACT format:\n{"place": "primary location", "note": "• detail 1\\n• detail 2\\n• detail 3..."}\n\nExamples:\n- Input: "Had coffee at Starbucks downtown"\n  Output: {"place": "Starbucks downtown", "note": "• Had coffee"}\n- Input: "Meeting with Sarah at the office about the new project"\n  Output: {"place": "office", "note": "• Meeting with Sarah about the new project"}\n- Input: "I am in Paris at four I\'m going to Montpelier and I will have a baguette right now I\'m eating croissants"\n  Output: {"place": "Paris", "note": "• At 4:00\\n• Eating croissants right now\\n• Going to Montpelier\\n• Will have a baguette"}\n- Input: "having soup the soup is called fall spell PHO"\n  Output: {"place": "restaurant", "note": "• Having soup\\n• The soup is called pho, spelled PHO"}\n- Input: "I mean Osaka I just bought a bottle of mirin I don\'t know what to do with it"\n  Output: {"place": "Osaka", "note": "• Just bought a bottle of mirin\\n• Unsure what to do with it"}'
+            content: 'Extract location and activity from the user\'s text. This text may come from voice transcription and could contain errors from accented speech or misheard words.\n\nListen carefully for:\n1. PLACE: The primary location, venue, or place name mentioned (e.g., "Starbucks", "Central Park", "Paris", "Osaka")\n2. NOTE: Carefully review the entire entry and note every activity, event, time, movement, or content that is described, ensuring nothing is missed. Write all details as a flowing sentence with periods separating each concept, covering every action, time, planned travel, intended actions, and current events or activities mentioned in the entry. Extract and note every single detail from the entry, such as times, movements, planned events, and ongoing activities, without omitting any.\n\nIMPORTANT Rules:\n- DO NOT repeat the location in the NOTE if it\'s already captured in PLACE\n- Avoid redundancy: if the place is "Osaka", don\'t write "Currently in Osaka" in the note\n- Focus the NOTE on activities, actions, events, and details - not restating the location\n- Only mention additional locations in NOTE if they are different from PLACE (e.g., travel plans to another city)\n- Use periods to separate different concepts or details, not bullet points\n\nVoice Transcription Corrections:\n- Watch for voice transcription errors, misspellings, or phonetic mistakes from accented speech\n- Correct obvious errors intelligently (e.g., "fall spell PHO" → "pho, spelled PHO")\n- Fix misheard words that don\'t make sense in context\n- Preserve the intended meaning while correcting transcription mistakes\n- Common patterns: homophones, phonetic spellings, missing punctuation\n\nRespond ONLY with valid JSON in this EXACT format:\n{"place": "primary location", "note": "detail 1. detail 2. detail 3."}\n\nExamples:\n- Input: "Had coffee at Starbucks downtown"\n  Output: {"place": "Starbucks downtown", "note": "Had coffee."}\n- Input: "Meeting with Sarah at the office about the new project"\n  Output: {"place": "office", "note": "Meeting with Sarah about the new project."}\n- Input: "I am in Paris at four I\'m going to Montpelier and I will have a baguette right now I\'m eating croissants"\n  Output: {"place": "Paris", "note": "At 4:00. Eating croissants right now. Going to Montpelier. Will have a baguette."}\n- Input: "having soup the soup is called fall spell PHO"\n  Output: {"place": "restaurant", "note": "Having soup. The soup is called pho, spelled PHO."}\n- Input: "I mean Osaka I just bought a bottle of mirin I don\'t know what to do with it"\n  Output: {"place": "Osaka", "note": "Just bought a bottle of mirin. Unsure what to do with it."}'
           },
           {
             role: 'user',
@@ -440,6 +445,7 @@ const LLMEntry = {
     const preview = document.getElementById('ai-preview');
     const saveBtn = document.getElementById('ai-save-btn');
 
+    // Clear all form data
     if (textInput) textInput.value = '';
     if (preview) {
       preview.style.display = 'none';
@@ -449,8 +455,10 @@ const LLMEntry = {
     if (form) form.style.display = 'none';
     if (overlay) overlay.style.display = 'none';
 
+    // Reset state
     this.updateVoiceStatus('');
     this.currentResult = null;
+    this.finalTranscript = ''; // Clear transcript cache
   }
 };
 

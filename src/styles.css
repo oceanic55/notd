@@ -145,6 +145,8 @@ body {
     display: flex;
     gap: 40px;
     position: relative;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .editable-field {
@@ -212,6 +214,8 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .timestamp {
@@ -231,8 +235,28 @@ body {
     color: white;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    word-break: break-word;
     white-space: normal;
     display: block;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+    max-width: 100%;
+}
+
+.note-link {
+    color: #6366f1;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.note-link:hover {
+    color: #818cf8;
+    text-decoration: none;
+}
+
+.note-link:visited {
+    color: #a78bfa;
 }
 
 #footer {
@@ -247,6 +271,16 @@ body {
     text-align: center;
     line-height: 1.6;
     border-top: 1px solid #444;
+}
+
+#api-settings-link {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#api-settings-link:hover {
+    color: #FF5100 !important;
+    text-decoration: underline !important;
 }
 
 #load-btn,

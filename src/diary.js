@@ -134,6 +134,25 @@ const StorageManager = {
 // Display Manager Module
 const DisplayManager = {
   /**
+   * Convert URLs in text to clickable links
+   * @param {string} text - Text that may contain URLs
+   * @returns {string} HTML string with linkified URLs
+   */
+  linkifyUrls(text) {
+    // URL regex pattern - matches http(s), www, and common TLDs
+    const urlPattern = /(https?:\/\/[^\s]+)|(www\.[^\s]+)|([a-zA-Z0-9][a-zA-Z0-9-]+\.[a-zA-Z]{2,}[^\s]*)/gi;
+    
+    return text.replace(urlPattern, (url) => {
+      let href = url;
+      // Add protocol if missing
+      if (!url.match(/^https?:\/\//i)) {
+        href = 'http://' + url;
+      }
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="note-link">${url}</a>`;
+    });
+  },
+
+  /**
    * Render all entries to the display
    * @param {DiaryEntry[]} entries - Array of diary entries to render
    */
@@ -196,7 +215,7 @@ const DisplayManager = {
 
     const noteSpan = document.createElement('span');
     noteSpan.className = 'note editable-field';
-    noteSpan.textContent = entry.note;
+    noteSpan.innerHTML = this.linkifyUrls(entry.note);
     noteSpan.dataset.field = 'note';
     noteSpan.dataset.index = index;
 
