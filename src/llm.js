@@ -3,9 +3,6 @@
 const LLMEntry = {
   apiKey: null,
   isProcessing: false,
-  recognition: null,
-  isListening: false,
-  finalTranscript: '',
 
   /**
    * Initialize LLM module - check for API key
@@ -41,12 +38,6 @@ const LLMEntry = {
       });
     }
 
-    // Set up voice button
-    const voiceBtn = document.getElementById('voice-btn');
-    if (voiceBtn) {
-      voiceBtn.addEventListener('click', () => this.toggleVoiceInput());
-    }
-
     // Set up API settings link
     const apiSettingsLink = document.getElementById('api-settings-link');
     if (apiSettingsLink) {
@@ -54,149 +45,6 @@ const LLMEntry = {
         e.preventDefault();
         this.promptForApiKey(true);
       });
-    }
-
-    // Initialize speech recognition
-    this.initSpeechRecognition();
-  },
-
-  /**
-   * Initialize speech recognition
-   */
-  initSpeechRecognition() {
-    // Check for browser support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      console.warn('Speech recognition not supported in this browser');
-      return;
-    }
-
-    this.recognition = new SpeechRecognition();
-    this.recognition.continuous = true;
-    this.recognition.interimResults = true;
-    this.recognition.lang = 'en-US';
-
-    let interimTranscript = '';
-
-    this.recognition.onstart = () => {
-      this.isListening = true;
-      // Preserve existing text in the field
-      const textInput = document.getElementById('ai-text-input');
-      if (textInput && textInput.value) {
-        this.finalTranscript = textInput.value;
-      } else {
-        this.finalTranscript = '';
-      }
-      this.updateVoiceStatus('Listening... (click VOICE to stop)');
-      const voiceBtn = document.getElementById('voice-btn');
-      if (voiceBtn) {
-        voiceBtn.classList.add('recording');
-      }
-    };
-
-    this.recognition.onresult = (event) => {
-      interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          this.finalTranscript += transcript + ' ';
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-
-      const textInput = document.getElementById('ai-text-input');
-      if (textInput) {
-        textInput.value = this.finalTranscript + interimTranscript;
-      }
-    };
-
-    this.recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      this.stopVoiceInput();
-
-      if (event.error === 'not-allowed') {
-        this.updateVoiceStatus('Microphone access denied');
-      } else if (event.error === 'no-speech') {
-        this.updateVoiceStatus('No speech detected');
-      } else {
-        this.updateVoiceStatus(`Error: ${event.error}`);
-      }
-
-      setTimeout(() => this.updateVoiceStatus(''), 3000);
-    };
-
-    this.recognition.onend = () => {
-      if (this.isListening) {
-        // Restart if we're still supposed to be listening
-        try {
-          this.recognition.start();
-        } catch (e) {
-          this.stopVoiceInput();
-        }
-      }
-    };
-  },
-
-  /**
-   * Toggle voice input on/off
-   */
-  toggleVoiceInput() {
-    if (!this.recognition) {
-      alert('Voice input is not supported in your browser. Please use Chrome, Edge, or Safari.');
-      return;
-    }
-
-    if (this.isListening) {
-      this.stopVoiceInput();
-    } else {
-      this.startVoiceInput();
-    }
-  },
-
-  /**
-   * Start voice input
-   */
-  startVoiceInput() {
-    if (!this.recognition) return;
-
-    try {
-      this.recognition.start();
-    } catch (e) {
-      console.error('Failed to start recognition:', e);
-    }
-  },
-
-  /**
-   * Stop voice input
-   */
-  stopVoiceInput() {
-    if (!this.recognition) return;
-
-    this.isListening = false;
-    try {
-      this.recognition.stop();
-    } catch (e) {
-      console.error('Failed to stop recognition:', e);
-    }
-
-    this.updateVoiceStatus('');
-    const voiceBtn = document.getElementById('voice-btn');
-    if (voiceBtn) {
-      voiceBtn.classList.remove('recording');
-    }
-  },
-
-  /**
-   * Update voice status message
-   */
-  updateVoiceStatus(message) {
-    const status = document.getElementById('voice-status');
-    if (status) {
-      status.textContent = message;
-      status.style.color = message.includes('Error') || message.includes('denied') ? '#ef4444' : '#888';
     }
   },
 
@@ -434,11 +282,6 @@ const LLMEntry = {
    * Reset AI form
    */
   resetAIForm() {
-    // Stop voice input if active
-    if (this.isListening) {
-      this.stopVoiceInput();
-    }
-
     const form = document.getElementById('ai-entry-form');
     const overlay = document.getElementById('form-overlay');
     const textInput = document.getElementById('ai-text-input');
@@ -456,9 +299,7 @@ const LLMEntry = {
     if (overlay) overlay.style.display = 'none';
 
     // Reset state
-    this.updateVoiceStatus('');
     this.currentResult = null;
-    this.finalTranscript = ''; // Clear transcript cache
   }
 };
 
