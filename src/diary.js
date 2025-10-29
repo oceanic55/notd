@@ -123,25 +123,47 @@ const StorageManager = {
      */
     updateFooterTimestamp(timestamp) {
         const footer = document.getElementById('footer');
-        if (!footer) return;
+        if (!footer) {
+            console.warn('Footer element not found');
+            return;
+        }
 
         // Parse timestamp
         const [month, day, hours, minutes] = timestamp.split('-');
         const formattedTime = `V. ${month}.${day}::${hours}:${minutes}`;
 
-        // Check if timestamp span already exists
-        let timestampSpan = footer.querySelector('.last-saved');
-        if (!timestampSpan) {
-            // Create new timestamp span
-            timestampSpan = document.createElement('span');
+        // Check if timestamp line already exists
+        let timestampLine = footer.querySelector('.footer-timestamp-line');
+        
+        if (!timestampLine) {
+            // Create new timestamp line
+            timestampLine = document.createElement('div');
+            timestampLine.className = 'footer-line footer-timestamp-line';
+            
+            const timestampSpan = document.createElement('span');
             timestampSpan.className = 'last-saved';
-            timestampSpan.style.marginLeft = '5px';
-            timestampSpan.style.color = '#666';
-            footer.appendChild(document.createTextNode(' · '));
-            footer.appendChild(timestampSpan);
+            timestampSpan.style.color = '#888';
+            timestampSpan.style.fontSize = '11px';
+            timestampSpan.textContent = formattedTime;
+            
+            timestampLine.appendChild(timestampSpan);
+            
+            // Insert before the last footer-line (dropdown)
+            const lastLine = footer.querySelector('.footer-line:last-child');
+            if (lastLine) {
+                footer.insertBefore(timestampLine, lastLine);
+            } else {
+                footer.appendChild(timestampLine);
+            }
+        } else {
+            // Update existing timestamp
+            const timestampSpan = timestampLine.querySelector('.last-saved');
+            if (timestampSpan) {
+                timestampSpan.textContent = formattedTime;
+            } else {
+                console.error('Timestamp line exists but span not found');
+            }
         }
-
-        timestampSpan.textContent = formattedTime;
     },
 
     /**
@@ -151,14 +173,9 @@ const StorageManager = {
         const footer = document.getElementById('footer');
         if (!footer) return;
 
-        const timestampSpan = footer.querySelector('.last-saved');
-        if (timestampSpan) {
-            // Remove the separator and timestamp
-            const separator = timestampSpan.previousSibling;
-            if (separator && separator.nodeType === Node.TEXT_NODE) {
-                separator.remove();
-            }
-            timestampSpan.remove();
+        const timestampLine = footer.querySelector('.footer-timestamp-line');
+        if (timestampLine) {
+            timestampLine.remove();
         }
     },
 
@@ -410,6 +427,8 @@ const App = {
         if (loadFile) {
             loadFile.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
+                console.log('File input change event fired, file:', file?.name);
+                
                 if (file) {
                     const entries = await StorageManager.loadFromFile(file);
                     if (entries) {
@@ -421,8 +440,11 @@ const App = {
                             this.handleSearch('');
                         }
                     }
-                    loadFile.value = ''; // Reset file input
                 }
+                
+                // Always reset file input after processing (success or failure)
+                // This ensures the change event fires again if the same file is selected
+                e.target.value = '';
             });
         }
 
@@ -721,9 +743,15 @@ const App = {
      * Handle NOTD* toggle button click
      */
     handleNotdToggle() {
+        console.log('=== handleNotdToggle called ===');
+        console.log('Current entries count:', StorageManager.currentEntries.length);
+        console.log('Current entries:', StorageManager.currentEntries);
+        
         const hasEntries = StorageManager.currentEntries.length > 0;
+        console.log('hasEntries:', hasEntries);
         
         if (hasEntries) {
+            console.log('Unloading current file...');
             // Unload current file
             StorageManager.currentEntries = [];
             StorageManager.currentFileName = null;
@@ -748,14 +776,25 @@ const App = {
                 this.handleSearch('');
             }
             
-            console.log('Unloaded current file');
+            console.log('File unloaded successfully');
         } else {
+            console.log('No entries, opening file dialog...');
             // Trigger load file dialog
             const loadFile = document.getElementById('load-file');
+            console.log('File input element:', loadFile);
+            
             if (loadFile) {
+                console.log('Resetting file input value');
+                loadFile.value = '';
+                console.log('Triggering click on file input');
                 loadFile.click();
+                console.log('Click triggered');
+            } else {
+                console.error('ERROR: File input element not found!');
+                alert('Error: File input element not found. Please refresh the page.');
             }
         }
+        console.log('=== handleNotdToggle completed ===');
     },
 
     /**
@@ -841,13 +880,16 @@ const App = {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Copy footer content to welcome message
-    const footer = document.querySelector('#footer div');
+    // Keep the original ASCII art in welcome message
     const welcomeTitle = document.getElementById('welcome-title');
-    if (footer && welcomeTitle) {
-        welcomeTitle.textContent = footer.textContent;
-        welcomeTitle.style.fontSize = '18px';
-        welcomeTitle.style.marginBottom = '30px';
+    if (welcomeTitle && !welcomeTitle.textContent.includes('▗▖')) {
+        // Restore original ASCII art if it was overwritten
+        welcomeTitle.textContent = `▗▖  ▗▖ ▗▄▖▗▄▄▄▖▗▄▄▄ 
+▐▛▚▖▐▌▐▌ ▐▌ █  ▐▌  █
+▐▌ ▝▜▌▐▌ ▐▌ █  ▐▌  █
+▐▌  ▐▌▝▚▄▞▘ █  ▐▙▄▄▀`;
+        welcomeTitle.style.fontSize = '14px';
+        welcomeTitle.style.marginBottom = '0';
     }
 
     // Clear search field on page load
@@ -859,10 +901,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up NOTD* toggle button
     const notdToggle = document.getElementById('notd-toggle-link');
     if (notdToggle) {
+        console.log('NOTD* toggle button found and event listener attached');
         notdToggle.addEventListener('click', (e) => {
+            console.log('NOTD* link clicked');
             e.preventDefault();
-            App.handleNotdToggle();
+            try {
+                App.handleNotdToggle();
+            } catch (error) {
+                console.error('Error in handleNotdToggle:', error);
+            }
         });
+    } else {
+        console.error('NOTD* toggle button not found!');
     }
 
     // Initialize swipe-to-delete
