@@ -64,6 +64,53 @@ const LLMEntry = {
         this.promptForApiKey(true);
       });
     }
+
+    // Set up model selector
+    const modelSelector = document.getElementById('model-selector');
+    if (modelSelector) {
+      modelSelector.value = this.selectedModel;
+      modelSelector.addEventListener('change', (e) => {
+        this.selectedModel = e.target.value;
+        localStorage.setItem('groq_model', this.selectedModel);
+      });
+      
+      // Fetch available models from Groq API
+      this.loadAvailableModels(modelSelector);
+    }
+  },
+
+  /**
+   * Load available models from Groq API
+   */
+  async loadAvailableModels(selectElement) {
+    // Allowed models list
+    const allowedModels = [
+      'moonshotai/kimi-k2-instruct-0905',
+      'qwen/qwen3-32b',
+      'llama-3.1-8b-instant',
+      'llama-3.3-70b-versatile',
+      'meta-llama/llama-4-maverick-17b-128e-instruct'
+    ];
+
+    // Clear existing options
+    selectElement.innerHTML = '';
+    
+    // Add allowed models to dropdown
+    allowedModels.forEach(modelId => {
+      const option = document.createElement('option');
+      option.value = modelId;
+      option.textContent = modelId;
+      selectElement.appendChild(option);
+    });
+    
+    // Restore selected model or default to first option
+    if (this.selectedModel && allowedModels.includes(this.selectedModel)) {
+      selectElement.value = this.selectedModel;
+    } else {
+      selectElement.value = allowedModels[0];
+      this.selectedModel = allowedModels[0];
+      localStorage.setItem('groq_model', this.selectedModel);
+    }
   },
 
   /**
@@ -166,7 +213,7 @@ const LLMEntry = {
         'Authorization': `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: this.selectedModel,
         messages: [
           {
             role: 'system',
@@ -385,7 +432,7 @@ const LLMEntry = {
         'Authorization': `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: this.selectedModel,
         messages: [
           {
             role: 'system',
@@ -423,8 +470,10 @@ const LLMEntry = {
     const modal = document.getElementById('ai-analysis-modal');
     const content = document.getElementById('ai-analysis-content');
     const overlay = document.getElementById('form-overlay');
+    const modelDisplay = document.getElementById('ai-model-display');
 
     if (content) content.textContent = analysis;
+    if (modelDisplay) modelDisplay.textContent = `(${this.selectedModel})`;
     if (modal) modal.style.display = 'block';
     if (overlay) overlay.style.display = 'block';
   },
