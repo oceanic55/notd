@@ -16,6 +16,12 @@ const LLMEntry = {
       aiEnterBtn.addEventListener('click', () => this.handleAIEnterClick());
     }
 
+    // Set up AI ANALYZE button
+    const aiAnalyzeBtn = document.getElementById('ai-analyze-btn');
+    if (aiAnalyzeBtn) {
+      aiAnalyzeBtn.addEventListener('click', () => this.handleAIAnalyze());
+    }
+
     // Set up AI form buttons
     const aiProcessBtn = document.getElementById('ai-process-btn');
     if (aiProcessBtn) {
@@ -32,10 +38,20 @@ const LLMEntry = {
     if (overlay) {
       overlay.addEventListener('click', () => {
         const aiForm = document.getElementById('ai-entry-form');
+        const aiModal = document.getElementById('ai-analysis-modal');
         if (aiForm && aiForm.style.display === 'block') {
           this.resetAIForm();
         }
+        if (aiModal && aiModal.style.display === 'block') {
+          this.closeAnalysisModal();
+        }
       });
+    }
+
+    // Set up AI analysis close button
+    const aiAnalysisClose = document.getElementById('ai-analysis-close');
+    if (aiAnalysisClose) {
+      aiAnalysisClose.addEventListener('click', () => this.closeAnalysisModal());
     }
 
     // Set up API settings link
@@ -300,6 +316,119 @@ const LLMEntry = {
 
     // Reset state
     this.currentResult = null;
+  },
+
+  /**
+   * Handle AI Analysis button click
+   */
+  async handleAIAnalyze() {
+    // Check for API key
+    if (!this.apiKey) {
+      const hasKey = this.promptForApiKey();
+      if (!hasKey) return;
+    }
+
+    // Get current entries from StorageManager
+    const entries = window.StorageManager ? window.StorageManager.getEntries() : [];
+
+    if (!entries || entries.length === 0) {
+      alert('No entries to analyze. Please add some entries first.');
+      return;
+    }
+    const aiBtn = document.getElementById('ai-analyze-btn');
+    const originalText = aiBtn ? aiBtn.textContent : 'AI';
+
+    if (aiBtn) {
+      aiBtn.textContent = 'ANALYZING...';
+      aiBtn.disabled = true;
+    }
+
+    try {
+      const analysis = await this.analyzeEntries(entries);
+      this.showAnalysisModal(analysis);
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
+
+      if (error.message.includes('API') || error.message.includes('401')) {
+        this.promptForApiKey(true);
+      }
+    } finally {
+      if (aiBtn) {
+        aiBtn.textContent = originalText;
+        aiBtn.disabled = false;
+      }
+    }
+  },
+
+  /**
+   * Analyze entries with Groq API
+   */
+  async analyzeEntries(entries) {
+    if (!this.apiKey) {
+      throw new Error('API key not set');
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          {
+            role: 'system',
+            content: 'Analyze ALL JSON entries with deep scrutiny. Read EVERY entry - short and long. Look beyond surface observations to find hidden patterns, connections, and meanings. Be specific and concrete, not generic.\n\nYour response MUST be 600-700 characters. Use the full space to provide detailed, insightful analysis.\n\nDIG DEEPER:\n- What specific items/activities appear? Name them explicitly (e.g., "crampons, miso, pizza, tea").\n- What do location patterns reveal about lifestyle or work?\n- What do food/drink choices suggest about culture or routine?\n- How do mundane notes (weather, purchases) relate to significant ones (product launches, meetings)?\n- What\'s the relationship between technical work and personal activities?\n- Are there hidden narratives in the sequence of events?\n\nWRITING STYLE:\n- Write in concise, direct phrases without unnecessary filler words\n- Avoid obvious statements like "The person is interested in" or "This suggests that" or "reveals a" or "indicates a"\n- Remove redundant phrases like "The juxtaposition of", "Recurring elements like", "The deeper story that emerges"\n- Get straight to the insight\n- Use sentence fragments and direct observations when appropriate\n\nOutput Format (NO "Theme:" label):\n\nIdea: [3-4 concise sentences with SPECIFIC examples. Name actual items, places, activities. Direct observations about what the mix reveals.]\n\nTrend: [3-4 concise sentences identifying CONCRETE patterns. List specific recurring elements. Direct statements about what patterns mean.]\n\nCore: [2-3 concise sentences. What does this person value? What\'s their world like? Direct insights only.]\n\nBad example: "The juxtaposition of outdoor gear like crampons reveals a globally mobile professional."\nGood example: "Globally mobile professional balancing adventure, innovation, and local experiences. Interest in neuroscience-based footwear, attending meetings, fixing UI issues."'
+          },
+          {
+            role: 'user',
+            content: JSON.stringify(entries)
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || 'API request failed');
+    }
+
+    const data = await response.json();
+    const analysis = data.choices[0]?.message?.content;
+
+    if (!analysis) {
+      throw new Error('No response from API');
+    }
+
+    return analysis;
+  },
+
+  /**
+   * Show analysis modal
+   */
+  showAnalysisModal(analysis) {
+    const modal = document.getElementById('ai-analysis-modal');
+    const content = document.getElementById('ai-analysis-content');
+    const overlay = document.getElementById('form-overlay');
+
+    if (content) content.textContent = analysis;
+    if (modal) modal.style.display = 'block';
+    if (overlay) overlay.style.display = 'block';
+  },
+
+  /**
+   * Close analysis modal
+   */
+  closeAnalysisModal() {
+    const modal = document.getElementById('ai-analysis-modal');
+    const overlay = document.getElementById('form-overlay');
+
+    if (modal) modal.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
   }
 };
 

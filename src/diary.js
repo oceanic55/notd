@@ -262,6 +262,9 @@ const StorageManager = {
     }
 };
 
+// Export StorageManager for use in other modules
+window.StorageManager = StorageManager;
+
 // Display Manager Module
 const DisplayManager = {
     /**
