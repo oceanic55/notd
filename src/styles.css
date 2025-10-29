@@ -304,7 +304,8 @@ body {
 #enter-btn,
 #ai-enter-btn,
 #save-btn-header,
-#edit-btn {
+#edit-btn,
+#ai-analyze-btn {
     background-color: #555;
     color: white;
     border: 1px solid #777;
@@ -319,7 +320,8 @@ body {
 #enter-btn:hover,
 #ai-enter-btn:hover,
 #save-btn-header:hover,
-#edit-btn:hover {
+#edit-btn:hover,
+#ai-analyze-btn:hover {
     background-color: #FF5100;
 }
 
