@@ -99,7 +99,9 @@ const LLMEntry = {
     allowedModels.forEach(modelId => {
       const option = document.createElement('option');
       option.value = modelId;
-      option.textContent = modelId;
+      // Display only the part after "/" or full name if no "/"
+      const displayName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
+      option.textContent = displayName;
       selectElement.appendChild(option);
     });
     
