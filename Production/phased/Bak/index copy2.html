@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Log</title>
+    <style>
+        body {
+            background-color: #333;
+            color: white;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 40px;
+        }
+
+        .message-left {
+            display: flex;
+            flex-direction: column;
+            width: 120px;
+            flex-shrink: 0;
+        }
+
+        .message-right {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .timestamp {
+            color: #aaa;
+        }
+
+        .sender {
+            color: #ccc;
+        }
+
+        .time {
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .note {
+            color: white;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        #enter-btn {
+            background-color: #555;
+            color: white;
+            border: 1px solid #777;
+            padding: 8px 16px;
+            margin: 20px 0;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        #enter-btn:hover {
+            background-color: #666;
+        }
+
+        #entry-form {
+            display: none;
+            background-color: #444;
+            padding: 15px;
+            margin: 20px 0;
+            border: 1px solid #666;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: inline-block;
+            width: 60px;
+            color: #aaa;
+        }
+
+        .form-group input {
+            background-color: #555;
+            color: white;
+            border: 1px solid #777;
+            padding: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            width: 300px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #999;
+            background-color: #666;
+        }
+
+        .form-group input.completed {
+            border-color: #6a6;
+        }
+
+        #save-btn {
+            background-color: #555;
+            color: white;
+            border: 1px solid #777;
+            padding: 8px 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 14px;
+            display: none;
+        }
+
+        #save-btn:hover {
+            background-color: #666;
+        }
+
+        #save-btn:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="entries-container"></div>
+
+    <button id="enter-btn">ENTER</button>
+
+    <div id="entry-form">
+        <div class="form-group" id="date-group">
+            <label for="date-input">Date:</label>
+            <input type="text" id="date-input" placeholder="e.g., 10/21/16" readonly>
+        </div>
+        <div class="form-group" id="place-group" style="display: none;">
+            <label for="place-input">Place:</label>
+            <input type="text" id="place-input" placeholder="e.g., New York">
+        </div>
+        <div class="form-group" id="time-group" style="display: none;">
+            <label for="time-input">Time:</label>
+            <input type="text" id="time-input" placeholder="e.g., 14:30" readonly>
+        </div>
+        <div class="form-group" id="note-group" style="display: none;">
+            <label for="note-input">Note:</label>
+            <input type="text" id="note-input" placeholder="Enter your note">
+        </div>
+        <button id="save-btn">SAVE</button>
+    </div>
+
+    <script src="diary.js"></script>
+</body>
+
+</html>

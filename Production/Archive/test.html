@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search and Highlight Demo (Partial Match)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #search {
+            padding: 8px;
+            width: 300px;
+        }
+
+        .note {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-match {
+            background-color: orange;
+            color: white;
+            padding: 0 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Search and Highlight Demo (Partial Match)</h1>
+    <input type="text" id="search" placeholder="Search...">
+    <div id="notes"></div>
+
+    <script>
+        // Sample JSON data (simulating a loaded file)
+        const notesData = [
+            { timestamp: "10/26/25", time: "13:50", sender: "Portland", note: "Getting to Astoria, I smell pizza." },
+            { timestamp: "10/26/25", time: "13:50", sender: "Astoria", note: "Pizza OK" },
+            { timestamp: "10/26/25", time: "18:51", sender: "Astoria", note: "An engineering and manufacturing challenge over 10 years in the making, the Mind 001 and Mind 002 feature 22 independent foam nodes per shoe that are bonded to a flexible, water-resistant material that allows them to act as pistons and gimbals as athletes move." }
+        ];
+
+        // Function to escape regex special characters
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Function to highlight search matches (partial matches)
+        function highlightMatches(note, query) {
+            if (!query) return note;
+            const escapedQuery = escapeRegex(query);
+            const regex = new RegExp(escapedQuery, 'gi');
+            return note.replace(regex, match => `<span class="search-match">${match}</span>`);
+        }
+
+        // Function to render notes
+        function renderNotes(notes, query) {
+            const notesEl = document.getElementById('notes');
+            notesEl.innerHTML = notes.map(note => `
+                <div class="note">
+                    <div><strong>${note.sender}</strong> (${note.timestamp} ${note.time})</div>
+                    <div>${highlightMatches(note.note, query)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Event listener for search input
+        document.getElementById('search').addEventListener('input', function (e) {
+            const query = e.target.value;
+            renderNotes(notesData, query);
+        });
+
+        // Initial render
+        renderNotes(notesData, '');
+    </script>
+</body>
+
+</html>

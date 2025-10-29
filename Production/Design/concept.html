@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Message Log</title>
+    <style>
+        body {
+            background-color: #333;
+            color: white;
+            font-family: monospace;
+            font-size: 3.5vw; /* Scales with viewport width */
+            line-height: 1.4;
+            padding: 5vw;
+            margin: 0;
+        }
+
+        .message-entry {
+            margin-bottom: 1vw;
+            white-space: pre;
+            word-break: break-word; /* Ensures long text wraps */
+        }
+
+        .date {
+            color: #ccc;
+            display: inline-block;
+            width: 20vw;
+        }
+
+        .timestamp {
+            color: #ccc;
+            display: inline-block;
+            width: 25vw;
+        }
+
+        .sender {
+            color: #ccc;
+            display: inline-block;
+            width: 20vw;
+        }
+
+        .message-text {
+            color: white;
+            display: inline;
+            margin-left: 2vw;
+            width: 50vw; /* Ensures text wraps on small screens */
+        }
+
+        /* Adjust font size for larger screens */
+        @media (min-width: 600px) {
+            body {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="message-entry">
+        <span class="date">10/21/16</span>
+        <span class="timestamp">2:49:13 AM</span>
+        <span class="sender">Nate</span>
+        <span class="message-text">Do you have ideas on what text you might want to incorporate\ninto the shoe collection?</span>
+    </div>
+
+    <div class="message-entry">
+        <span class="date">10/21/16</span>
+        <span class="timestamp">2:49:13 AM</span>
+        <span class="sender">Virgil</span>
+        <span class="message-text">It would be sort of this descriptive text, quite sterile</span>
+    </div>
+
+    <div class="message-entry">
+        <span class="date">10/21/16</span>
+        <span class="timestamp">2:49:13 AM</span>
+        <span class="sender">Virgil</span>
+        <span class="message-text">I want to reference the shoes itself by style name</span>
+    </div>
+
+    <div class="message-entry">
+        <span class="date">10/21/16</span>
+        <span class="timestamp">2:49:13 AM</span>
+        <span class="sender">Virgil</span>
+        <span class="message-text">Year etc</span>
+    </div>
+
+    <div class="message-entry">
+        <span class="date">10/21/16</span>
+        <span class="timestamp">2:49:13 AM</span>
+        <span class="sender">Virgil</span>
+        <span class="message-text">The theory is to underline its existence by being specific.</span>
+    </div>
+</body>
+</html>

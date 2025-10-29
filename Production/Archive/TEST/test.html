@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Swipe Delete Test</title>
+    <link rel="stylesheet" href="test-styles.css" />
+</head>
+
+<body>
+    <div id="header">
+        <h2 style="color: #888; text-align: center; padding: 20px;">Swipe Delete Test</h2>
+        <p style="color: #666; text-align: center; font-size: 12px;">Swipe entries left to reveal delete button</p>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <button id="load-btn" style="
+                background-color: #555;
+                color: white;
+                border: 1px solid #777;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-family: monospace;
+                font-size: 13px;
+                margin-right: 10px;
+            ">LOAD JSON</button>
+            <span id="file-info" style="color: #888; font-size: 12px;"></span>
+            <input type="file" id="load-file" accept=".json" style="display: none" />
+        </div>
+    </div>
+
+    <div id="entries-container"></div>
+
+    <script src="test-swipe.js"></script>
+</body>
+
+</html>

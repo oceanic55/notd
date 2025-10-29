@@ -1,0 +1,79 @@
+[
+  {
+    "timestamp": "10",
+    "sender": "Mo",
+    "note": "Hey what's up"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:02",
+    "sender": "New York",
+    "note": "Hey, I'm in New York!"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:04",
+    "sender": "Osaka",
+    "note": "Greetings!What if you could enhance your pregame routine with mind-altering science? Meet the Nike Mind. Its large outsole nodes push against your foot as you step, engaging sensory areas of the brain to help you stay present and connect with your surroundings. Because when it's anyone's game, winning is all in the mind."
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:21",
+    "sender": "Osaka",
+    "note": "Hey what now"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:38",
+    "sender": "Seattle",
+    "note": "Went to REI got a GoPro"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:47",
+    "sender": "Paris",
+    "note": "Getting to Eiffel."
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:50",
+    "sender": "Portland",
+    "note": "Getting to Astoria, I smell pizza."
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:50",
+    "sender": "Astoria",
+    "note": "Pizza OK"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "13:56",
+    "sender": "Oakland",
+    "note": "Going to Apple Store"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "14:07",
+    "sender": "Portland",
+    "note": "Went to Nike"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "14:13",
+    "sender": "New York",
+    "note": "Nikes bounce nicely"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "14:13",
+    "sender": "New York",
+    "note": "good night"
+  },
+  {
+    "timestamp": "10/26/25",
+    "time": "14:14",
+    "sender": "Paris",
+    "note": "Flew all night"
+  }
+]
