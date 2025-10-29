@@ -1,0 +1,60 @@
+/* Dedicated styles for EDIT mode - completely isolated from ENTER mode */
+
+/* Edit mode active state */
+#edit-btn.active {
+    background-color: #FF5100;
+    border-color: #FF5100;
+}
+
+/* Editable fields in edit mode */
+.edit-mode .editable-field {
+    cursor: pointer;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 2px;
+}
+
+/* Hover state in edit mode */
+.edit-mode .editable-field:hover {
+    background-color: #ffd700;
+    color: #333;
+}
+
+/* When a field is actively being edited - force all layout properties */
+.editing-active,
+.editable-field[contenteditable="true"] {
+    background-color: #ffd700 !important;
+    color: #333 !important;
+    outline: none !important;
+    /* Force wrapping behavior */
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    /* Prevent browser from adding constraints */
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+}
+
+/* Specific override for note fields when editing */
+.note.editing-active,
+.note[contenteditable="true"] {
+    display: block !important;
+    width: 100% !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
+
+/* Specific override for timestamp, sender, time when editing */
+.timestamp.editing-active,
+.timestamp[contenteditable="true"],
+.sender.editing-active,
+.sender[contenteditable="true"],
+.time.editing-active,
+.time[contenteditable="true"] {
+    display: inline-block !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+}
