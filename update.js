@@ -8,12 +8,14 @@ const indexPath = path.join(__dirname, 'index.html');
 const readmePath = path.join(__dirname, 'README.md');
 
 try {
-    // Read version from version.txt
-    const newVersion = fs.readFileSync(versionPath, 'utf8').trim();
+    // Read version from version.txt (only first line)
+    const versionFileContent = fs.readFileSync(versionPath, 'utf8');
+    const newVersion = versionFileContent.split('\n')[0].trim();
     
     // Validate version format (X.X.X)
     if (!/^\d+\.\d+\.\d+$/.test(newVersion)) {
         console.error('Error: Version must be in format X.X.X (e.g., 2.1.4)');
+        console.error(`Found: "${newVersion}"`);
         process.exit(1);
     }
 

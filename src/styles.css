@@ -76,6 +76,11 @@ body {
     flex: 1;
 }
 
+#entries-container {
+    display: block;
+    width: 100%;
+}
+
 #search-container {
     display: flex;
     align-items: center;
@@ -305,6 +310,7 @@ body {
 #ai-enter-btn,
 #save-btn-header,
 #edit-btn,
+#copy-btn,
 #ai-analyze-btn {
     background-color: #555;
     color: white;
@@ -321,6 +327,7 @@ body {
 #ai-enter-btn:hover,
 #save-btn-header:hover,
 #edit-btn:hover,
+#copy-btn:hover,
 #ai-analyze-btn:hover {
     background-color: #FF5100;
 }

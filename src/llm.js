@@ -83,35 +83,84 @@ const LLMEntry = {
    * Load available models from Groq API
    */
   async loadAvailableModels(selectElement) {
-    // Allowed models list
-    const allowedModels = [
-      'moonshotai/kimi-k2-instruct-0905',
-      'qwen/qwen3-32b',
-      'llama-3.1-8b-instant',
-      'llama-3.3-70b-versatile',
-      'meta-llama/llama-4-maverick-17b-128e-instruct'
-    ];
+    // Clear existing options and show loading
+    selectElement.innerHTML = '<option>Loading models...</option>';
 
-    // Clear existing options
-    selectElement.innerHTML = '';
+    try {
+      // Fetch models from Groq API
+      const response = await fetch('https://api.groq.com/openai/v1/models', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey || ''}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    // Add allowed models to dropdown
-    allowedModels.forEach(modelId => {
-      const option = document.createElement('option');
-      option.value = modelId;
-      // Display only the part after "/" or full name if no "/"
-      const displayName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
-      option.textContent = displayName;
-      selectElement.appendChild(option);
-    });
+      if (!response.ok) {
+        throw new Error('Failed to fetch models');
+      }
 
-    // Restore selected model or default to first option
-    if (this.selectedModel && allowedModels.includes(this.selectedModel)) {
-      selectElement.value = this.selectedModel;
-    } else {
-      selectElement.value = allowedModels[0];
-      this.selectedModel = allowedModels[0];
-      localStorage.setItem('groq_model', this.selectedModel);
+      const data = await response.json();
+      const models = data.data || [];
+
+      // Clear loading message
+      selectElement.innerHTML = '';
+
+      if (models.length === 0) {
+        selectElement.innerHTML = '<option>No models available</option>';
+        return;
+      }
+
+      // Sort models by ID for consistent ordering
+      models.sort((a, b) => a.id.localeCompare(b.id));
+
+      // Add models to dropdown
+      models.forEach(model => {
+        const option = document.createElement('option');
+        option.value = model.id;
+        // Display only the part after "/" or full name if no "/"
+        const displayName = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+        option.textContent = displayName;
+        selectElement.appendChild(option);
+      });
+
+      // Restore selected model or default to first option
+      const modelIds = models.map(m => m.id);
+      if (this.selectedModel && modelIds.includes(this.selectedModel)) {
+        selectElement.value = this.selectedModel;
+      } else {
+        selectElement.value = models[0].id;
+        this.selectedModel = models[0].id;
+        localStorage.setItem('groq_model', this.selectedModel);
+      }
+    } catch (error) {
+      console.error('Error loading models:', error);
+      
+      // Fallback to default models list
+      const fallbackModels = [
+        'llama-3.3-70b-versatile',
+        'llama-3.1-8b-instant',
+        'mixtral-8x7b-32768',
+        'gemma2-9b-it'
+      ];
+
+      selectElement.innerHTML = '';
+      fallbackModels.forEach(modelId => {
+        const option = document.createElement('option');
+        option.value = modelId;
+        const displayName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
+        option.textContent = displayName;
+        selectElement.appendChild(option);
+      });
+
+      // Restore selected model or default to first option
+      if (this.selectedModel && fallbackModels.includes(this.selectedModel)) {
+        selectElement.value = this.selectedModel;
+      } else {
+        selectElement.value = fallbackModels[0];
+        this.selectedModel = fallbackModels[0];
+        localStorage.setItem('groq_model', this.selectedModel);
+      }
     }
   },
 
@@ -395,8 +444,8 @@ const LLMEntry = {
     }
 
     try {
-      const analysis = await this.analyzeEntries(entries);
-      this.showAnalysisModal(analysis);
+      const result = await this.analyzeEntries(entries);
+      this.showAnalysisModal(result);
     } catch (error) {
       console.error('AI analysis error:', error);
       alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
@@ -446,7 +495,7 @@ const LLMEntry = {
           }
         ],
         temperature: 0.7,
-        max_tokens: 500
+        max_tokens: 3000
       })
     });
 
@@ -456,25 +505,73 @@ const LLMEntry = {
     }
 
     const data = await response.json();
-    const analysis = data.choices[0]?.message?.content;
+    const choice = data.choices[0];
+    const analysis = choice?.message?.content;
 
     if (!analysis) {
       throw new Error('No response from API');
     }
 
-    return analysis;
+    // Get token usage and completion status
+    const usage = data.usage || {};
+    const finishReason = choice?.finish_reason || 'unknown';
+    const isComplete = finishReason === 'stop';
+    
+    // Check if response was truncated
+    if (finishReason === 'length') {
+      console.warn('Response was truncated due to max_tokens limit');
+    }
+
+    return {
+      analysis,
+      usage: {
+        promptTokens: usage.prompt_tokens || 0,
+        completionTokens: usage.completion_tokens || 0,
+        totalTokens: usage.total_tokens || 0
+      },
+      finishReason,
+      isComplete
+    };
   },
 
   /**
    * Show analysis modal
    */
-  showAnalysisModal(analysis) {
+  showAnalysisModal(result) {
     const modal = document.getElementById('ai-analysis-modal');
     const content = document.getElementById('ai-analysis-content');
     const overlay = document.getElementById('form-overlay');
     const modelDisplay = document.getElementById('ai-model-display');
 
-    if (content) content.textContent = analysis;
+    if (content) {
+      // Display analysis text
+      content.textContent = result.analysis;
+      
+      // Add completion status and token usage info
+      const statusDiv = document.createElement('div');
+      statusDiv.style.marginTop = '20px';
+      statusDiv.style.paddingTop = '15px';
+      statusDiv.style.borderTop = '1px solid #555';
+      statusDiv.style.fontSize = '12px';
+      statusDiv.style.color = '#aaa';
+      
+      const statusIcon = result.isComplete ? '✓' : '⚠';
+      const statusText = result.isComplete ? 'Complete' : `Incomplete (${result.finishReason})`;
+      const statusColor = result.isComplete ? '#10b981' : '#f59e0b';
+      
+      statusDiv.innerHTML = `
+        <div style="margin-bottom: 8px;">
+          <span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${statusText}</span>
+        </div>
+        <div>
+          Tokens used: ${result.usage.totalTokens} 
+          (prompt: ${result.usage.promptTokens}, completion: ${result.usage.completionTokens})
+        </div>
+      `;
+      
+      content.appendChild(statusDiv);
+    }
+    
     if (modelDisplay) modelDisplay.textContent = `(${this.selectedModel})`;
     if (modal) modal.style.display = 'block';
     if (overlay) overlay.style.display = 'block';

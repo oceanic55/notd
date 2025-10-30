@@ -103,12 +103,6 @@ const StorageManager = {
                 this.saveToLocalStorage(); // Save to localStorage without timestamp
             }
 
-            console.log(`Loaded ${entries.length} entries from ${file.name}`);
-
-            // Hide welcome message when file is loaded
-            const welcome = document.getElementById('welcome-message');
-            if (welcome) welcome.style.display = 'none';
-
             return entries;
         } catch (e) {
             console.error('Error loading file:', e);
@@ -308,8 +302,17 @@ const DisplayManager = {
      * @param {DiaryEntry[]} entries - Array of diary entries to render
      */
     renderEntries(entries) {
+        console.log('Rendering', entries.length, 'entries');
         this.clearDisplay();
         entries.forEach((entry, index) => this.appendEntry(entry, index));
+        const container = document.getElementById('entries-container');
+        console.log('Container now has', container?.children.length, 'children');
+        
+        // Force scroll to top
+        const content = document.getElementById('content');
+        if (content) {
+            content.scrollTop = 0;
+        }
     },
 
     /**
@@ -329,7 +332,10 @@ const DisplayManager = {
      */
     appendEntry(entry, index) {
         const container = document.getElementById('entries-container');
-        if (!container) return;
+        if (!container) {
+            console.error('Container not found for appendEntry!');
+            return;
+        }
 
         // Create wrapper for swipe functionality
         const wrapper = document.createElement('div');
@@ -397,16 +403,6 @@ const App = {
     editingIndex: null,
 
     /**
-     * Show load prompt on startup
-     */
-    showLoadPrompt() {
-        const welcome = document.getElementById('welcome-message');
-        const container = document.getElementById('entries-container');
-        if (welcome) welcome.style.display = 'block';
-        if (container) container.innerHTML = '';
-    },
-
-    /**
      * Initialize the application
      */
     async initialize() {
@@ -414,12 +410,6 @@ const App = {
         const savedEntries = StorageManager.loadFromLocalStorage();
         if (savedEntries && savedEntries.length > 0) {
             DisplayManager.renderEntries(savedEntries);
-            const welcome = document.getElementById('welcome-message');
-            if (welcome) welcome.style.display = 'none';
-            console.log('Auto-loaded previous session');
-        } else {
-            // Show load prompt if no saved data
-            this.showLoadPrompt();
         }
 
         // Set up event listeners
@@ -427,7 +417,6 @@ const App = {
         if (loadFile) {
             loadFile.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                console.log('File input change event fired, file:', file?.name);
                 
                 if (file) {
                     const entries = await StorageManager.loadFromFile(file);
@@ -442,9 +431,10 @@ const App = {
                     }
                 }
                 
-                // Always reset file input after processing (success or failure)
-                // This ensures the change event fires again if the same file is selected
-                e.target.value = '';
+                // Reset file input after processing to allow reloading the same file
+                setTimeout(() => {
+                    e.target.value = '';
+                }, 100);
             });
         }
 
@@ -512,6 +502,12 @@ const App = {
                 searchInput.value = '';
                 this.handleSearch('');
             });
+        }
+
+        // Set up COPY button
+        const copyBtn = document.getElementById('copy-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => this.handleCopyClick());
         }
     },
 
@@ -740,61 +736,45 @@ const App = {
     },
 
     /**
-     * Handle NOTD* toggle button click
+     * Handle COPY button click
      */
-    handleNotdToggle() {
-        console.log('=== handleNotdToggle called ===');
-        console.log('Current entries count:', StorageManager.currentEntries.length);
-        console.log('Current entries:', StorageManager.currentEntries);
-        
-        const hasEntries = StorageManager.currentEntries.length > 0;
-        console.log('hasEntries:', hasEntries);
-        
-        if (hasEntries) {
-            console.log('Unloading current file...');
-            // Unload current file
-            StorageManager.currentEntries = [];
-            StorageManager.currentFileName = null;
-            DisplayManager.clearDisplay();
-            
-            // Clear localStorage
-            localStorage.removeItem('diary_entries');
-            localStorage.removeItem('diary_filename');
-            localStorage.removeItem('diary_timestamp');
-            
-            // Clear footer timestamp
-            StorageManager.clearFooterTimestamp();
-            
-            // Show welcome message
-            const welcome = document.getElementById('welcome-message');
-            if (welcome) welcome.style.display = 'block';
-            
-            // Clear search
-            const searchInput = document.getElementById('search-input');
-            if (searchInput) {
-                searchInput.value = '';
-                this.handleSearch('');
-            }
-            
-            console.log('File unloaded successfully');
-        } else {
-            console.log('No entries, opening file dialog...');
-            // Trigger load file dialog
-            const loadFile = document.getElementById('load-file');
-            console.log('File input element:', loadFile);
-            
-            if (loadFile) {
-                console.log('Resetting file input value');
-                loadFile.value = '';
-                console.log('Triggering click on file input');
-                loadFile.click();
-                console.log('Click triggered');
-            } else {
-                console.error('ERROR: File input element not found!');
-                alert('Error: File input element not found. Please refresh the page.');
-            }
+    async handleCopyClick() {
+        const entries = StorageManager.getEntries();
+
+        if (!entries || entries.length === 0) {
+            alert('No entries to copy. Please load a file first.');
+            return;
         }
-        console.log('=== handleNotdToggle completed ===');
+
+        // Convert entries to text format (same as AI analyze)
+        const entriesText = entries.map(entry => {
+            const place = entry.sender || 'Unknown';
+            const note = entry.note || '';
+            return `${place}: ${note}`;
+        }).join('\n');
+
+        try {
+            // Copy to clipboard
+            await navigator.clipboard.writeText(entriesText);
+            
+            // Visual feedback
+            const copyBtn = document.getElementById('copy-btn');
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'COPIED!';
+                copyBtn.style.backgroundColor = '#10b981';
+                copyBtn.style.borderColor = '#10b981';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.backgroundColor = '';
+                    copyBtn.style.borderColor = '';
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error);
+            alert('Failed to copy to clipboard. Please try again.');
+        }
     },
 
     /**
@@ -900,19 +880,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set up NOTD* toggle button
     const notdToggle = document.getElementById('notd-toggle-link');
-    if (notdToggle) {
-        console.log('NOTD* toggle button found and event listener attached');
+    const loadFile = document.getElementById('load-file');
+    
+    if (notdToggle && loadFile) {
         notdToggle.addEventListener('click', (e) => {
-            console.log('NOTD* link clicked');
             e.preventDefault();
-            try {
-                App.handleNotdToggle();
-            } catch (error) {
-                console.error('Error in handleNotdToggle:', error);
+            e.stopPropagation();
+            
+            const hasEntries = StorageManager.currentEntries.length > 0;
+            
+            if (hasEntries) {
+                // Unload current file
+                StorageManager.currentEntries = [];
+                StorageManager.currentFileName = null;
+                DisplayManager.clearDisplay();
+                
+                // Clear localStorage
+                localStorage.removeItem('diary_entries');
+                localStorage.removeItem('diary_filename');
+                localStorage.removeItem('diary_timestamp');
+                
+                // Clear footer timestamp
+                StorageManager.clearFooterTimestamp();
+                
+                // Clear search
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.value = '';
+                    App.handleSearch('');
+                }
+            } else {
+                // Directly trigger file input click in the same event handler
+                loadFile.click();
             }
         });
-    } else {
-        console.error('NOTD* toggle button not found!');
     }
 
     // Initialize swipe-to-delete
