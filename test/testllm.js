@@ -1,4 +1,4 @@
-// LLM-powered data entry using Groq API
+// LLM-powered data entry using Groq API - TEST VERSION
 
 const LLMEntry = {
   apiKey: null,
@@ -18,7 +18,12 @@ const LLMEntry = {
       aiEnterBtn.addEventListener('click', () => this.handleAIEnterClick());
     }
 
-    // Set up AI ANALYZE button
+    // Set up AI ANALYZE button (both ai-btn and ai-analyze-btn)
+    const aiBtn = document.getElementById('ai-btn');
+    if (aiBtn) {
+      aiBtn.addEventListener('click', () => this.handleAIAnalyze());
+    }
+
     const aiAnalyzeBtn = document.getElementById('ai-analyze-btn');
     if (aiAnalyzeBtn) {
       aiAnalyzeBtn.addEventListener('click', () => this.handleAIAnalyze());
@@ -413,7 +418,7 @@ const LLMEntry = {
   },
 
   /**
-   * Analyze entries with Groq API
+   * Analyze entries with Groq API - TEST VERSION
    */
   async analyzeEntries(entries) {
     if (!this.apiKey) {
