@@ -4,9 +4,15 @@
 # SERVE
 # NOTES*
 
-NOTD* 2.9.0
+NOTD* 3.0.0
 
 
+Added essay generation feature: new LLM button in AI analysis modal (REPLY WIN) generates one-paragraph essays (max 600 chars) from analysis output. Uses strict prompt to prevent creative invention beyond source content. Styled consistently with existing modal buttons.
+
+10.30::17:24
+
+
+v2.9.0
 Added dialog-based editing to index.html, allowing users to edit existing entries manually or reprocess them through AI.
 
 Changes

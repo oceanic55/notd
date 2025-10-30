@@ -33,6 +33,7 @@
     background-color: #444;
 }
 
+#ai-essay-btn,
 #ai-copy-btn,
 #ai-close-btn {
     background: none;
@@ -46,11 +47,13 @@
     transition: opacity 0.2s;
 }
 
+#ai-essay-btn:hover,
 #ai-copy-btn:hover,
 #ai-close-btn:hover {
     opacity: 1;
 }
 
+#ai-essay-btn img,
 #ai-copy-btn img,
 #ai-close-btn img {
     width: 20px;
