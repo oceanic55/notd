@@ -50,10 +50,15 @@ const LLMEntry = {
       });
     }
 
-    // Set up AI analysis close button
-    const aiAnalysisClose = document.getElementById('ai-analysis-close');
-    if (aiAnalysisClose) {
-      aiAnalysisClose.addEventListener('click', () => this.closeAnalysisModal());
+    // Set up REPLY WIN buttons
+    const aiCopyBtn = document.getElementById('ai-copy-btn');
+    if (aiCopyBtn) {
+      aiCopyBtn.addEventListener('click', () => this.copyAnalysisToClipboard());
+    }
+
+    const aiCloseBtn = document.getElementById('ai-close-btn');
+    if (aiCloseBtn) {
+      aiCloseBtn.addEventListener('click', () => this.closeAnalysisModal());
     }
 
     // Set up API settings link
@@ -448,9 +453,17 @@ const LLMEntry = {
       this.showAnalysisModal(result);
     } catch (error) {
       console.error('AI analysis error:', error);
-      alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
+      
+      // Show error in reply window instead of popup
+      this.showAnalysisModal({
+        analysis: `Error: ${error.message}`,
+        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+        finishReason: 'error',
+        isComplete: false
+      });
 
-      if (error.message.includes('API') || error.message.includes('401')) {
+      // Only prompt for API key if it's an auth issue
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         this.promptForApiKey(true);
       }
     } finally {
@@ -487,7 +500,7 @@ const LLMEntry = {
         messages: [
           {
             role: 'system',
-            content: 'Extract subtle, novel patterns across notes, emphasizing:\n\nMotivations (why actions/choices occur)\nSensory experiences (how environments/activities are perceived)\nUnderlying philosophies (beliefs or values driving behavior)\n\nContext:\nCurrent State: Raw notes with implicit connections.\nTarget State: Concise thematic summary (≤700 chars) of non-obvious trends, grouped by categories (e.g., food, travel, social interactions).\n\nKey Constraints:\n- Exclude temporal details unless tied to deeper meaning.\n- Avoid over-interpretation; prioritize descriptive insights.\n\nRequirements:\n- Group notes by topic (e.g., food, travel, social interactions) to reveal hidden trends.\n- Identify sensory or emotional triggers (e.g., textures, sounds, ambiance).\n- Highlight surprising motivations (e.g., nostalgia, rebellion, curiosity).\n- Exclude obvious content (e.g., "enjoyed the meal" → focus on why it was meaningful).\n\nSuccess Criteria:\n- Novelty: Insights are unexpected or counterintuitive.\n- Depth: Connections reveal underlying reasons, not just surface observations.\n- Conciseness: Summary fits within 700 characters.\n\nAssumptions:\n- Notes contain implicit links (e.g., repeated themes, contrasts).\n- Grouping by topic will expose less obvious trends.\n- Sensory details are proxies for deeper emotional or philosophical drivers.\n\nDeliverables:\n- Thematic clusters (e.g., "Food as rebellion," "Travel as escape").\n- Descriptive summary (≤700 chars) of patterns, motivations, and sensory triggers.\n\nExample Output Structure:\nFood: Recurring focus on "crunchy textures" tied to stress relief; spicy flavors correlate with risk-taking phases.\nTravel: Solo trips align with creative blocks—quiet hotels chosen for "empty space to think."\nSocial: Avoidance of loud gatherings linked to childhood memories of overstimulation.\nUnderlying theme: Seeking control through sensory boundaries.'
+            content: 'Extract subtle, novel patterns across notes, emphasizing:\n\nMotivations (why actions/choices occur)\nSensory experiences (how environments/activities are perceived)\nUnderlying philosophies (beliefs or values driving behavior)\n\nContext:\nCurrent State: Raw notes with implicit connections.\nTarget State: Concise thematic summary (≤700 chars) of non-obvious trends, grouped by categories (e.g., food, travel, social interactions).\n\nKey Constraints:\n- Exclude temporal details unless tied to deeper meaning.\n- Avoid over-interpretation; prioritize descriptive insights.\n\nRequirements:\n- Group notes by topic (e.g., food, travel, social interactions) to reveal hidden trends.\n- Identify sensory or emotional triggers (e.g., textures, sounds, ambiance).\n- Highlight surprising motivations (e.g., nostalgia, rebellion, curiosity).\n- Exclude obvious content (e.g., "enjoyed the meal" → focus on why it was meaningful).\n\nSuccess Criteria:\n- Novelty: Insights are unexpected or counterintuitive.\n- Depth: Connections reveal underlying reasons, not just surface observations.\n- Conciseness: Summary fits within 700 characters.\n\nAssumptions:\n- Notes contain implicit links (e.g., repeated themes, contrasts).\n- Grouping by topic will expose less obvious trends.\n- Sensory details are proxies for deeper emotional or philosophical drivers.\n\nFormatting Rules:\n- Use plain text only. NO markdown formatting.\n- Do NOT use asterisks, underscores, or any markdown syntax for bold, italic, or emphasis.\n- Do NOT use hashtags for headers.\n- Use simple text with colons for labels (e.g., "Food: description here").\n- Use quotation marks for emphasis instead of bold or italic.\n\nDeliverables:\n- Thematic clusters (e.g., "Food as rebellion," "Travel as escape").\n- Descriptive summary (≤700 chars) of patterns, motivations, and sensory triggers.\n\nExample Output Structure:\nFood: Recurring focus on "crunchy textures" tied to stress relief; spicy flavors correlate with risk-taking phases.\nTravel: Solo trips align with creative blocks—quiet hotels chosen for "empty space to think."\nSocial: Avoidance of loud gatherings linked to childhood memories of overstimulation.\nUnderlying theme: Seeking control through sensory boundaries.'
           },
           {
             role: 'user',
@@ -495,13 +508,20 @@ const LLMEntry = {
           }
         ],
         temperature: 0.7,
-        max_tokens: 3000
+        max_tokens: 250
       })
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'API request failed');
+      const errorData = await response.json();
+      const errorMessage = errorData.error?.message || 'API request failed';
+      
+      // Check for rate limit error
+      if (response.status === 429 || errorMessage.toLowerCase().includes('rate limit')) {
+        throw new Error(`Rate limit reached for model "${this.selectedModel}". Please try again later or switch to a different model.`);
+      }
+      
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -535,50 +555,53 @@ const LLMEntry = {
   },
 
   /**
-   * Show analysis modal
+   * Show REPLY WIN (analysis modal)
    */
   showAnalysisModal(result) {
     const modal = document.getElementById('ai-analysis-modal');
     const content = document.getElementById('ai-analysis-content');
     const overlay = document.getElementById('form-overlay');
-    const modelDisplay = document.getElementById('ai-model-display');
 
     if (content) {
-      // Display analysis text
-      content.textContent = result.analysis;
-      
-      // Add completion status and token usage info
-      const statusDiv = document.createElement('div');
-      statusDiv.style.marginTop = '20px';
-      statusDiv.style.paddingTop = '15px';
-      statusDiv.style.borderTop = '1px solid #555';
-      statusDiv.style.fontSize = '12px';
-      statusDiv.style.color = '#aaa';
-      
-      const statusIcon = result.isComplete ? '✓' : '⚠';
+      // Build simplified status info with model name
       const statusText = result.isComplete ? 'Complete' : `Incomplete (${result.finishReason})`;
-      const statusColor = result.isComplete ? '#10b981' : '#f59e0b';
+      const statusLine = `${statusText}. Tokens used: ${result.usage.totalTokens}<br>Model: ${this.selectedModel}`;
       
-      statusDiv.innerHTML = `
-        <div style="margin-bottom: 8px;">
-          <span style="color: ${statusColor}; font-weight: bold;">${statusIcon} ${statusText}</span>
-        </div>
-        <div>
-          Tokens used: ${result.usage.totalTokens} 
-          (prompt: ${result.usage.promptTokens}, completion: ${result.usage.completionTokens})
-        </div>
-      `;
+      // Store the full analysis text for copying (with newline for plain text)
+      this.currentAnalysis = `${result.analysis}\n\n${statusText}. Tokens used: ${result.usage.totalTokens}\nModel: ${this.selectedModel}`;
       
-      content.appendChild(statusDiv);
+      // Display analysis text with status info at the bottom in orange
+      content.innerHTML = `${result.analysis}\n\n<span style="color: #FF5100;">${statusLine}</span>`;
     }
     
-    if (modelDisplay) modelDisplay.textContent = `(${this.selectedModel})`;
     if (modal) modal.style.display = 'block';
     if (overlay) overlay.style.display = 'block';
   },
 
   /**
-   * Close analysis modal
+   * Copy analysis to clipboard
+   */
+  copyAnalysisToClipboard() {
+    if (!this.currentAnalysis) return;
+    
+    navigator.clipboard.writeText(this.currentAnalysis).then(() => {
+      // Visual feedback - could add a toast notification here
+      const copyBtn = document.getElementById('ai-copy-btn');
+      if (copyBtn) {
+        const originalOpacity = copyBtn.style.opacity;
+        copyBtn.style.opacity = '1';
+        setTimeout(() => {
+          copyBtn.style.opacity = originalOpacity;
+        }, 200);
+      }
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy to clipboard');
+    });
+  },
+
+  /**
+   * Close REPLY WIN (analysis modal)
    */
   closeAnalysisModal() {
     const modal = document.getElementById('ai-analysis-modal');
@@ -586,6 +609,7 @@ const LLMEntry = {
 
     if (modal) modal.style.display = 'none';
     if (overlay) overlay.style.display = 'none';
+    this.currentAnalysis = null;
   }
 };
 
