@@ -567,8 +567,8 @@ const LLMEntry = {
       const statusText = result.isComplete ? 'Complete' : `Incomplete (${result.finishReason})`;
       const statusLine = `${statusText}. Tokens used: ${result.usage.totalTokens}<br>Model: ${this.selectedModel}`;
       
-      // Store the full analysis text for copying (with newline for plain text)
-      this.currentAnalysis = `${result.analysis}\n\n${statusText}. Tokens used: ${result.usage.totalTokens}\nModel: ${this.selectedModel}`;
+      // Store only the analysis text for copying (without tokens/model info)
+      this.currentAnalysis = result.analysis;
       
       // Display analysis text with status info at the bottom in orange
       content.innerHTML = `${result.analysis}\n\n<span style="color: #FF5100;">${statusLine}</span>`;

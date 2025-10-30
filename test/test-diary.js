@@ -14,6 +14,8 @@
 const StorageManager = {
     currentFileName: null,
     currentEntries: [],
+    currentFileHandle: null, // Store file handle for direct saving (File System Access API)
+    autoSaveEnabled: false, // Flag to enable auto-save without dialog
 
     /**
      * Save entries to localStorage for auto-load
@@ -70,9 +72,10 @@ const StorageManager = {
     /**
      * Load entries from a JSON file
      * @param {File} file - The JSON file to load
+     * @param {FileSystemFileHandle} fileHandle - Optional file handle for direct saving
      * @returns {DiaryEntry[]} Array of diary entries
      */
-    async loadFromFile(file) {
+    async loadFromFile(file, fileHandle = null) {
         try {
             const text = await file.text();
             const data = JSON.parse(text);
@@ -93,6 +96,8 @@ const StorageManager = {
 
             this.currentFileName = file.name;
             this.currentEntries = entries;
+            this.currentFileHandle = fileHandle; // Store file handle for direct saving
+            console.log('File handle stored:', fileHandle ? 'YES' : 'NO');
 
             // Update footer with timestamp if available
             if (lastSaved) {
@@ -220,14 +225,39 @@ const StorageManager = {
 
             // Check if File System Access API is supported
             if ('showSaveFilePicker' in window) {
-                const fileHandle = await window.showSaveFilePicker({
-                    suggestedName: suggestedName,
-                    startIn: 'downloads',
-                    types: [{
-                        description: 'JSON Files',
-                        accept: { 'application/json': ['.json'] }
-                    }]
-                });
+                let fileHandle = this.currentFileHandle;
+                console.log('Save: File handle available?', fileHandle ? 'YES' : 'NO');
+
+                // If we have a stored file handle, use it directly
+                if (fileHandle) {
+                    try {
+                        // Verify we still have permission
+                        const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
+                        if (permission !== 'granted') {
+                            const requestPermission = await fileHandle.requestPermission({ mode: 'readwrite' });
+                            if (requestPermission !== 'granted') {
+                                throw new Error('Permission denied');
+                            }
+                        }
+                    } catch (e) {
+                        console.log('Permission check failed, will prompt for file location');
+                        fileHandle = null;
+                        this.currentFileHandle = null;
+                    }
+                }
+
+                // If no file handle or permission denied, show save dialog
+                if (!fileHandle) {
+                    fileHandle = await window.showSaveFilePicker({
+                        suggestedName: suggestedName,
+                        startIn: 'downloads',
+                        types: [{
+                            description: 'JSON Files',
+                            accept: { 'application/json': ['.json'] }
+                        }]
+                    });
+                    this.currentFileHandle = fileHandle; // Store for future saves
+                }
 
                 const writable = await fileHandle.createWritable();
                 await writable.write(dataStr);
@@ -250,23 +280,37 @@ const StorageManager = {
                     }, 1500);
                 }
             } else {
-                // Fallback to download
+                // Fallback: Download with consistent filename
+                // Use the loaded filename if available, otherwise generate one
+                const downloadName = this.currentFileName || suggestedName;
+                console.log('Using download method (File System Access API not supported)');
+                console.log('Download filename:', downloadName);
+                
                 const url = URL.createObjectURL(dataBlob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = suggestedName;
+                link.download = downloadName;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                console.log(`Downloaded ${this.currentEntries.length} entries`);
+                console.log(`Downloaded ${this.currentEntries.length} entries to ${downloadName}`);
 
                 // Update footer with new timestamp
                 this.updateFooterTimestamp(timestamp);
 
                 // Save to localStorage with timestamp
                 this.saveToLocalStorage(timestamp);
+
+                // Visual feedback
+                const saveBtn = document.getElementById('save-btn-header');
+                if (saveBtn) {
+                    saveBtn.style.borderColor = '#10b981';
+                    setTimeout(() => {
+                        saveBtn.style.borderColor = '';
+                    }, 1500);
+                }
             }
         } catch (e) {
             if (e.name === 'AbortError') {
@@ -448,6 +492,51 @@ const App = {
             });
         }
 
+        // Set up load button to use File System Access API when available
+        const loadJsonBtn = document.getElementById('load-json-btn');
+        console.log('showOpenFilePicker supported?', 'showOpenFilePicker' in window);
+        console.log('showSaveFilePicker supported?', 'showSaveFilePicker' in window);
+        if (loadJsonBtn) {
+            console.log('Load JSON button handler attached');
+            loadJsonBtn.addEventListener('click', async () => {
+                console.log('Load JSON button clicked');
+                // Use File System Access API if available for better file handle support
+                if ('showOpenFilePicker' in window) {
+                    console.log('Using File System Access API');
+                    try {
+                        const [fileHandle] = await window.showOpenFilePicker({
+                            types: [{
+                                description: 'JSON Files',
+                                accept: { 'application/json': ['.json'] }
+                            }],
+                            multiple: false
+                        });
+
+                        console.log('File handle obtained:', fileHandle);
+                        const file = await fileHandle.getFile();
+                        console.log('File obtained:', file.name);
+                        const entries = await StorageManager.loadFromFile(file, fileHandle);
+                        if (entries) {
+                            DisplayManager.renderEntries(entries);
+                            // Clear search field when loading new file
+                            const searchInput = document.getElementById('search-input');
+                            if (searchInput) {
+                                searchInput.value = '';
+                                this.handleSearch('');
+                            }
+                        }
+                    } catch (e) {
+                        if (e.name !== 'AbortError') {
+                            console.error('Error opening file:', e);
+                        }
+                    }
+                } else {
+                    // Fallback to file input
+                    loadFile.click();
+                }
+            });
+        }
+
         const enterBtn = document.getElementById('enter-btn');
         if (enterBtn) {
             enterBtn.addEventListener('click', () => this.handleEnterClick());
@@ -463,14 +552,30 @@ const App = {
             editBtn.addEventListener('click', () => this.toggleEditMode());
         }
 
-        // Set up click handler for editable fields (using event delegation)
+        // Set up click handler for entries in edit mode (using event delegation)
         const entriesContainer = document.getElementById('entries-container');
         if (entriesContainer) {
             entriesContainer.addEventListener('click', (e) => {
-                if (EditMode.isActive && e.target.classList.contains('editable-field')) {
-                    EditMode.startEdit(e.target);
+                // Check if clicking on a message wrapper or its children
+                const wrapper = e.target.closest('.message-wrapper');
+                if (EditMode.isActive && wrapper) {
+                    const index = parseInt(wrapper.dataset.index);
+                    if (!isNaN(index)) {
+                        EditMode.handleEntryClick(index);
+                    }
                 }
             });
+        }
+
+        // Set up edit form buttons
+        const editSaveBtn = document.getElementById('edit-save-btn');
+        if (editSaveBtn) {
+            editSaveBtn.addEventListener('click', () => EditMode.handleSave());
+        }
+
+        const editLLMReprocessBtn = document.getElementById('edit-llm-reprocess-btn');
+        if (editLLMReprocessBtn) {
+            editLLMReprocessBtn.addEventListener('click', () => EditMode.handleLLMReprocess());
         }
 
         // Set up sequential field prompting
@@ -495,8 +600,13 @@ const App = {
         if (overlay) {
             overlay.addEventListener('click', () => {
                 const form = document.getElementById('entry-form');
+                const editForm = document.getElementById('edit-entry-form');
                 if (form && form.style.display === 'block') {
                     this.resetForm();
+                } else if (editForm && editForm.style.display === 'block') {
+                    if (window.EditMode) {
+                        window.EditMode.closeEditDialog();
+                    }
                 }
             });
         }
@@ -722,11 +832,16 @@ const App = {
         if (e.key === 'Escape') {
             const form = document.getElementById('entry-form');
             const aiForm = document.getElementById('ai-entry-form');
+            const editForm = document.getElementById('edit-entry-form');
             if (form && form.style.display === 'block') {
                 this.resetForm();
             } else if (aiForm && aiForm.style.display === 'block') {
                 if (window.LLMEntry) {
                     window.LLMEntry.resetAIForm();
+                }
+            } else if (editForm && editForm.style.display === 'block') {
+                if (window.EditMode) {
+                    window.EditMode.closeEditDialog();
                 }
             }
         }
@@ -755,6 +870,7 @@ const App = {
             // Unload current file
             StorageManager.currentEntries = [];
             StorageManager.currentFileName = null;
+            StorageManager.currentFileHandle = null; // Clear file handle
             DisplayManager.clearDisplay();
             
             // Clear localStorage
@@ -779,19 +895,51 @@ const App = {
             console.log('File unloaded successfully');
         } else {
             console.log('No entries, opening file dialog...');
-            // Trigger load file dialog
-            const loadFile = document.getElementById('load-file');
-            console.log('File input element:', loadFile);
-            
-            if (loadFile) {
-                console.log('Resetting file input value');
-                loadFile.value = '';
-                console.log('Triggering click on file input');
-                loadFile.click();
-                console.log('Click triggered');
+            // Use File System Access API if available
+            if ('showOpenFilePicker' in window) {
+                console.log('Using File System Access API for NOTD* toggle');
+                (async () => {
+                    try {
+                        const [fileHandle] = await window.showOpenFilePicker({
+                            types: [{
+                                description: 'JSON Files',
+                                accept: { 'application/json': ['.json'] }
+                            }],
+                            multiple: false
+                        });
+
+                        const file = await fileHandle.getFile();
+                        const entries = await StorageManager.loadFromFile(file, fileHandle);
+                        if (entries) {
+                            DisplayManager.renderEntries(entries);
+                            // Clear search field when loading new file
+                            const searchInput = document.getElementById('search-input');
+                            if (searchInput) {
+                                searchInput.value = '';
+                                this.handleSearch('');
+                            }
+                        }
+                    } catch (e) {
+                        if (e.name !== 'AbortError') {
+                            console.error('Error opening file:', e);
+                        }
+                    }
+                })();
             } else {
-                console.error('ERROR: File input element not found!');
-                alert('Error: File input element not found. Please refresh the page.');
+                // Fallback to file input
+                const loadFile = document.getElementById('load-file');
+                console.log('File input element:', loadFile);
+                
+                if (loadFile) {
+                    console.log('Resetting file input value');
+                    loadFile.value = '';
+                    console.log('Triggering click on file input');
+                    loadFile.click();
+                    console.log('Click triggered');
+                } else {
+                    console.error('ERROR: File input element not found!');
+                    alert('Error: File input element not found. Please refresh the page.');
+                }
             }
         }
         console.log('=== handleNotdToggle completed ===');

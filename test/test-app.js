@@ -1,9 +1,6 @@
 // Test-specific app initialization script
 
-// JSON loading functionality - use the LOAD JSON button
-document.getElementById('load-json-btn').addEventListener('click', function () {
-    document.getElementById('load-file').click();
-});
+// JSON loading functionality is now handled in test-diary.js
 
 // AI Analysis modal close functionality
 document.getElementById('ai-analysis-close').addEventListener('click', function () {

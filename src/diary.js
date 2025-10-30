@@ -453,14 +453,30 @@ const App = {
             editBtn.addEventListener('click', () => this.toggleEditMode());
         }
 
-        // Set up click handler for editable fields (using event delegation)
+        // Set up click handler for entries in edit mode (using event delegation)
         const entriesContainer = document.getElementById('entries-container');
         if (entriesContainer) {
             entriesContainer.addEventListener('click', (e) => {
-                if (EditMode.isActive && e.target.classList.contains('editable-field')) {
-                    EditMode.startEdit(e.target);
+                // Check if clicking on a message wrapper or its children
+                const wrapper = e.target.closest('.message-wrapper');
+                if (EditMode.isActive && wrapper) {
+                    const index = parseInt(wrapper.dataset.index);
+                    if (!isNaN(index)) {
+                        EditMode.handleEntryClick(index);
+                    }
                 }
             });
+        }
+
+        // Set up edit form buttons
+        const editSaveBtn = document.getElementById('edit-save-btn');
+        if (editSaveBtn) {
+            editSaveBtn.addEventListener('click', () => EditMode.handleSave());
+        }
+
+        const editLLMReprocessBtn = document.getElementById('edit-llm-reprocess-btn');
+        if (editLLMReprocessBtn) {
+            editLLMReprocessBtn.addEventListener('click', () => EditMode.handleLLMReprocess());
         }
 
         // Set up sequential field prompting
@@ -485,8 +501,13 @@ const App = {
         if (overlay) {
             overlay.addEventListener('click', () => {
                 const form = document.getElementById('entry-form');
+                const editForm = document.getElementById('edit-entry-form');
                 if (form && form.style.display === 'block') {
                     this.resetForm();
+                } else if (editForm && editForm.style.display === 'block') {
+                    if (window.EditMode) {
+                        window.EditMode.closeEditDialog();
+                    }
                 }
             });
         }
@@ -718,11 +739,16 @@ const App = {
         if (e.key === 'Escape') {
             const form = document.getElementById('entry-form');
             const aiForm = document.getElementById('ai-entry-form');
+            const editForm = document.getElementById('edit-entry-form');
             if (form && form.style.display === 'block') {
                 this.resetForm();
             } else if (aiForm && aiForm.style.display === 'block') {
                 if (window.LLMEntry) {
                     window.LLMEntry.resetAIForm();
+                }
+            } else if (editForm && editForm.style.display === 'block') {
+                if (window.EditMode) {
+                    window.EditMode.closeEditDialog();
                 }
             }
         }
