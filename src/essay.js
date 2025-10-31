@@ -95,12 +95,7 @@ const EssayGenerator = {
         // ============================================
         // ESSAY PROMPT - Edit src/essay-style-examples.txt to customize style examples
         // ============================================
-        const essayPrompt = `Here’s a refined, clearer, and more executable version of your instruction, optimized for precision and faultless execution by an LLM:
-
----
-
-**Instruction:**
-Write **one cohesive paragraph** using **only the provided information**. Your response must adhere strictly to the following requirements:
+        const essayPrompt = `Write **one cohesive paragraph** using **only the provided information**. Your response must adhere strictly to the following requirements:
 
 - **Structure:** A single paragraph with **no line breaks** or sub-divisions.
 - **Length:** Between **120 and 140 words** 
