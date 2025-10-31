@@ -4,9 +4,17 @@
 # SERVE
 # NOTES*
 
-NOTD* 3.0.0
+NOTD* 3.0.1
 
 
+Externalized the essay style examples from 
+essay.js into a separate src/essay-style-examples.txt file. Added a loadStyleExamples() method that fetches and caches the content, with preloading on initialization. This lets you maintain a long reference text for the LLM without cluttering the code.
+New Prompt.
+
+10.31::09:50
+
+
+v3.0.0
 Added essay generation feature: new LLM button in AI analysis modal (REPLY WIN) generates one-paragraph essays (max 600 chars) from analysis output. Uses strict prompt to prevent creative invention beyond source content. Styled consistently with existing modal buttons.
 
 10.30::17:24
