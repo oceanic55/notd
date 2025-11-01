@@ -81,6 +81,16 @@
     display: block;
 }
 
+/* Invert theme toggle icon in dark mode (SVGs use currentColor which is white) */
+:root[data-theme="dark"] #theme-toggle img {
+    filter: invert(1);
+}
+
+/* Keep theme toggle icon normal in light mode */
+:root[data-theme="light"] #theme-toggle img {
+    filter: invert(0);
+}
+
 /* Apply theme variables to existing styles */
 body {
     background-color: var(--bg-primary);

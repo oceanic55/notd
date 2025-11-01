@@ -12,9 +12,9 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #444;
+    background-color: var(--bg-tertiary);
     padding: 4px;
-    border: 1px solid #666;
+    border: 1px solid var(--border-secondary);
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     z-index: 1000;
@@ -30,7 +30,7 @@
     gap: 8px;
     padding: 4px;
     padding-right: 14px;
-    background-color: #444;
+    background-color: var(--bg-tertiary);
 }
 
 #ai-essay-btn,
@@ -58,14 +58,27 @@
 #ai-close-btn img {
     width: 20px;
     height: 20px;
+}
+
+/* Invert icons in dark mode (SVGs use currentColor which is white) */
+:root[data-theme="dark"] #ai-essay-btn img,
+:root[data-theme="dark"] #ai-copy-btn img,
+:root[data-theme="dark"] #ai-close-btn img {
     filter: invert(1);
 }
 
+/* Keep icons normal in light mode */
+:root[data-theme="light"] #ai-essay-btn img,
+:root[data-theme="light"] #ai-copy-btn img,
+:root[data-theme="light"] #ai-close-btn img {
+    filter: invert(0);
+}
+
 #ai-analysis-content {
-    background-color: #333;
-    color: white;
+    background-color: var(--bg-preview);
+    color: var(--text-primary);
     padding: 15px;
-    border: 1px solid #555;
+    border: 1px solid var(--border-primary);
     font-family: monospace;
     font-size: 14px;
     line-height: 1.6;
