@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="src/edit.css" />
     <link rel="stylesheet" href="src/inline-styles.css" />
     <link rel="stylesheet" href="src/ai-modal.css" />
+    <link rel="stylesheet" href="src/theme.css" />
 </head>
 
 <body>
@@ -20,7 +21,12 @@
                 <button id="edit-btn">EDIT</button>
                 <input type="file" id="load-file" accept=".json" />
             </div>
-            <div id="header-title">NOTD*</div>
+            <div id="header-title">
+                NOTD*
+                <button id="theme-toggle" title="Toggle light/dark mode">
+                    <img src="svg/light.svg" alt="Toggle theme" />
+                </button>
+            </div>
         </div>
         <div id="search-container">
             <input type="text" id="search-input" placeholder="Search entries..." />
@@ -40,7 +46,7 @@
     <div id="footer">
         <div class="footer-line">
             <a href="#" id="notd-toggle-link">NOTD*</a>
-            <span>&nbsp;&nbsp;3.0.1</span>
+            <span>&nbsp;&nbsp;3.1.0</span>
             <span>·</span>
             <a href="#" id="api-settings-link">API</a>
             <span>&nbsp;&nbsp;</span>
@@ -158,6 +164,7 @@
         <div id="ai-preview"></div>
     </div>
 
+    <script src="src/theme.js"></script>
     <script src="src/edit.js"></script>
     <script src="src/llm.js"></script>
     <script src="src/essay.js"></script>

@@ -104,6 +104,25 @@ const EssayGenerator = {
 - **Language:** Rephrase the original details stylishly, but **never introduce new ideas** or embellishments. If the source mentions "tea in Kyoto," limit your discussion to tea in Kyoto—nothing more.
 - **Originality:** Avoid repeating phrasing from the examples (e.g., "As I navigated the realms of"). Instead, assimilate the tone to craft fresh, equally expressive prose.
 
+- adopt the following style for generating content:
+
+1. **Narrative Voice**: Write in first-person perspective, as if recounting personal experiences or observations. Be conversational,
+like chatting with a friend over a beer.
+
+2. **Tone and Humor**: Infuse light-hearted humor through irony, exaggeration, and self-deprecation. Avoid heavy-handed jokes; let
+absurdity shine through naturally. Balance humor with reflective insights.
+
+3. **Structure**: Use episodic, anecdotal structure. Start with a hook (e.g., a vivid scene or ironic situation), digress into related
+thoughts or stories, and tie back to the main point. Include cultural or historical context where relevant.
+
+4. **Language**: Use vivid, descriptive language. Mix colloquialisms with precise terms. Vary sentence length for rhythm. Include
+occasional strong language if it fits the tone, but keep it tasteful.
+
+5. **Themes**: Explore contrasts (e.g., Western vs. island life), human quirks, and universal truths. End with a witty or poignant
+observation.
+
+6. **Length and Depth**: Aim for engaging, readable essays that entertain while informing. Avoid dryness; make it fun and insightful.
+
 **Goal:** Deliver a paragraph that is **concise, expressive, and faithful** to the source material, while mirroring the stylistic flair of the examples.`;
         // ============================================
 

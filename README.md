@@ -4,7 +4,14 @@
 # SERVE
 # NOTES*
 
-NOTD* 3.0.1
+
+
+## Changelog
+
+v3.1.0
+Added light/dark theme switcher with persistent preference storage. New toggle button positioned next to the NOTD* title uses SVG icons (light.svg/dark.svg) and switches between comprehensive light and dark color schemes. Theme preference is saved to localStorage and automatically restored on page load. All UI elements including buttons, inputs, modals, and text adapt seamlessly to the selected theme through CSS custom properties.
+
+11.01::00:00
 
 
 Externalized the essay style examples from 
