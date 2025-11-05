@@ -15,6 +15,14 @@ const EntryForm = {
             });
         }
 
+        // Prevent form container clicks from bubbling to overlay
+        const form = document.getElementById('entry-form');
+        if (form) {
+            form.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
         // Set up Process button
         const processBtn = document.getElementById('process-btn');
         if (processBtn) {
@@ -46,7 +54,7 @@ const EntryForm = {
         });
     },
 
-    openForm() {
+    openForm(userEvent = null) {
         const overlay = document.getElementById('form-overlay');
         const form = document.getElementById('entry-form');
         
@@ -61,7 +69,40 @@ const EntryForm = {
                 entryField.value = '';
                 entryField.style.height = '24px';
                 entryField.style.overflowY = 'hidden';
-                setTimeout(() => entryField.focus(), 100);
+                
+                // Mobile-friendly focus - immediate focus within user event context
+                if (userEvent) {
+                    // Direct focus within the same event context for mobile compatibility
+                    entryField.focus();
+                    
+                    // Additional mobile-specific triggers
+                    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                        // Multiple approaches for mobile focus
+                        entryField.click();
+                        entryField.setSelectionRange(0, 0);
+                        
+                        // Force focus with a synthetic touch event
+                        const touchEvent = new TouchEvent('touchstart', {
+                            bubbles: true,
+                            cancelable: true,
+                            touches: []
+                        });
+                        entryField.dispatchEvent(touchEvent);
+                        
+                        // Final fallback - ensure focus after a minimal delay
+                        requestAnimationFrame(() => {
+                            entryField.focus();
+                            entryField.click();
+                        });
+                    }
+                } else {
+                    // Fallback for programmatic calls
+                    entryField.focus();
+                    requestAnimationFrame(() => {
+                        entryField.focus();
+                        setTimeout(() => entryField.focus(), 50);
+                    });
+                }
             }
             
             // Hide and clear the process field

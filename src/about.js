@@ -18,6 +18,14 @@ const AboutInfo = {
             });
         }
 
+        // Prevent form container clicks from bubbling to overlay
+        const aboutForm = document.getElementById('about-form');
+        if (aboutForm) {
+            aboutForm.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
         // ESC key to close
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -52,7 +60,7 @@ const AboutInfo = {
         // Update app version from package.json or hardcoded
         const appVersion = document.getElementById('app-version');
         if (appVersion) {
-            appVersion.textContent = '4.0.0';
+            appVersion.textContent = '4.0.1';
         }
     },
 

@@ -8,6 +8,12 @@
 
 ## Changelog
 
+v4.0.1
+Fixed click-outside-to-close functionality for all forms and modals. Updated CSS pointer-events from 'none' to 'auto' on overlays and added event.stopPropagation() to form containers to prevent accidental closures. Enhanced mobile browser compatibility for automatic text field focus when opening entry form - focus now triggers within the same user event context with multiple fallback mechanisms including click events and touch handlers. Added mobile-specific CSS properties for better text selection behavior.
+
+11.05::17:30
+
+
 v4.0.0
 New UI.
 

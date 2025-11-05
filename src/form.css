@@ -11,7 +11,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 #form-overlay.active {
@@ -71,6 +71,10 @@
     resize: none;
     overflow-y: hidden;
     line-height: 1.5;
+    /* Mobile-specific properties for better focus behavior */
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
 }
 
 .entry-field:focus {
@@ -155,7 +159,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 #edit-form-overlay.active {
@@ -222,7 +226,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 #api-settings-overlay.active {
@@ -269,7 +273,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 #llm-selection-overlay.active {
@@ -340,7 +344,7 @@
     justify-content: center;
     align-items: center;
     padding: 20px;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 #about-overlay.active {

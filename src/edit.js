@@ -269,6 +269,43 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Prevent edit form container clicks from bubbling to overlay
+  const editForm = document.getElementById('edit-entry-form');
+  if (editForm) {
+    editForm.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  // Click outside entries to cancel edit mode (when no dialog is open)
+  document.addEventListener('click', (e) => {
+    // Only handle clicks when edit mode is active but no dialog is open
+    if (EditMode.isActive) {
+      const editDialog = document.getElementById('edit-entry-form');
+      const isDialogOpen = editDialog && editDialog.classList.contains('active');
+      
+      if (!isDialogOpen) {
+        const entriesContainer = document.getElementById('entries-container');
+        const clickedInsideEntries = entriesContainer && entriesContainer.contains(e.target);
+        
+        // If clicked outside the entries container, exit edit mode
+        if (!clickedInsideEntries) {
+          EditMode.toggle();
+        }
+      }
+    }
+  });
+
+  // Prevent entries container clicks from bubbling when in edit mode
+  const entriesContainer = document.getElementById('entries-container');
+  if (entriesContainer) {
+    entriesContainer.addEventListener('click', (e) => {
+      if (EditMode.isActive) {
+        e.stopPropagation();
+      }
+    });
+  }
+
   // ESC key to close edit form or exit edit mode
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

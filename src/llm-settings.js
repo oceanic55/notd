@@ -33,6 +33,21 @@ const LLMSettings = {
             });
         }
 
+        // Prevent form container clicks from bubbling to overlay
+        const apiForm = document.getElementById('api-settings-form');
+        if (apiForm) {
+            apiForm.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
+        const llmForm = document.getElementById('llm-selection-form');
+        if (llmForm) {
+            llmForm.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+
         // ESC key to close
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {

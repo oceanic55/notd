@@ -20,8 +20,17 @@ class Navigation {
             this.logoBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.handleLogoClick();
+                this.handleLogoClick(e);
             });
+            
+            // Additional touch event for mobile devices
+            if ('ontouchstart' in window) {
+                this.logoBtn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.handleLogoClick(e);
+                });
+            }
         }
 
         // ENTER button - toggle dropdown
@@ -133,9 +142,9 @@ class Navigation {
         this.overviewBtn.addEventListener('keydown', (e) => this.handleKeyboard(e, 'overview'));
     }
 
-    handleLogoClick() {
+    handleLogoClick(event) {
         // Logo button opens the entry form
-        this.openEntryForm();
+        this.openEntryForm(event);
     }
 
     handleDropdownAction(action) {
@@ -171,10 +180,10 @@ class Navigation {
         }
     }
 
-    openEntryForm() {
+    openEntryForm(event) {
         // Use the EntryForm module
         if (window.EntryForm) {
-            window.EntryForm.openForm();
+            window.EntryForm.openForm(event);
         }
     }
 

@@ -66,6 +66,14 @@ const LLMEntry = {
       });
     }
 
+    // Prevent AI modal container clicks from bubbling to overlay
+    const aiModal = document.getElementById('ai-analysis-modal');
+    if (aiModal) {
+      aiModal.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
+
     // Set up ESC key to close modal
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
