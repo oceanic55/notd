@@ -57,39 +57,7 @@
     --accent-highlight: #ffd700;
 }
 
-/* Theme toggle button */
-#theme-toggle {
-    background-color: transparent;
-    color: var(--text-primary);
-    border: 1px solid var(--border-tertiary);
-    padding: 6px 12px;
-    cursor: pointer;
-    height: 32px;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#theme-toggle:hover {
-    background-color: var(--bg-quaternary);
-}
-
-#theme-toggle img {
-    width: 16px;
-    height: 16px;
-    display: block;
-}
-
-/* Invert theme toggle icon in dark mode (SVGs use currentColor which is white) */
-:root[data-theme="dark"] #theme-toggle img {
-    filter: invert(1);
-}
-
-/* Keep theme toggle icon normal in light mode */
-:root[data-theme="light"] #theme-toggle img {
-    filter: invert(0);
-}
+/* Theme toggle button removed from UI */
 
 /* Apply theme variables to existing styles */
 body {
@@ -110,22 +78,7 @@ body {
     background-color: var(--bg-primary);
 }
 
-#search-input {
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-    border: 1px solid var(--border-tertiary);
-}
 
-#search-input:focus {
-    border-color: var(--border-secondary);
-    background-color: var(--bg-input-focus);
-}
-
-#search-input::placeholder {
-    color: var(--text-secondary);
-}
-
-#search-clear,
 #load-btn,
 #enter-btn,
 #ai-enter-btn,
@@ -159,19 +112,7 @@ body {
     background-color: var(--accent-hover);
 }
 
-#search-results {
-    color: var(--text-secondary);
-}
 
-.message.highlight {
-    background-color: var(--bg-highlight);
-    border-left: 3px solid var(--accent-primary);
-}
-
-.search-match {
-    background-color: var(--accent-primary);
-    color: white;
-}
 
 .message-wrapper {
     background-color: var(--bg-message);
@@ -232,42 +173,14 @@ body {
     color: var(--accent-primary) !important;
 }
 
-#entry-form,
-#ai-entry-form,
-#edit-entry-form,
-#ai-analysis-modal {
-    background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-secondary);
-}
+/* Edit form and AI modal styling removed - now using form.css and ai-modal.css */
 
-#form-overlay {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-.form-group label {
-    color: var(--text-secondary);
-}
-
-.form-group input,
-.form-group textarea,
-#ai-text-input {
-    background-color: var(--bg-quaternary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-tertiary);
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-#ai-text-input:focus {
-    border-color: var(--border-secondary);
-    background-color: var(--bg-input-focus);
-}
-
-#ai-analysis-content,
 #ai-preview {
     background-color: var(--bg-preview);
     border: 1px solid var(--border-primary);
 }
+
+/* AI analysis content styling removed - now using ai-modal.css */
 
 #ai-analysis-modal h2 {
     color: var(--accent-primary);

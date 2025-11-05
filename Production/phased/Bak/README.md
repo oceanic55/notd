@@ -1,8 +1,0 @@
-# NOTD*
-
-# WE
-# SERVE
-# NOTES*
-
-NOTD* 1.1.3
-

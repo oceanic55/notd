@@ -6,55 +6,25 @@
     border-color: #FF5100;
 }
 
-/* Editable fields in edit mode */
-.edit-mode .editable-field {
+/* Entry wrappers in edit mode - make them visually clickable */
+.edit-mode .message-wrapper {
     cursor: pointer;
-    padding: 2px 4px;
-    margin: -2px -4px;
-    border-radius: 2px;
+    transition: background-color 0.2s, border 0.2s;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 4px 0;
 }
 
-/* Hover state in edit mode */
-.edit-mode .editable-field:hover {
-    background-color: #ffd700;
-    color: #333;
+.edit-mode .message-wrapper:hover {
+    background-color: rgba(255, 119, 1, 0.1);
+    border-color: #ff7701;
 }
 
-/* When a field is actively being edited - force all layout properties */
-.editing-active,
-.editable-field[contenteditable="true"] {
-    background-color: #ffd700 !important;
-    color: #333 !important;
-    outline: none !important;
-    /* Force wrapping behavior */
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-    /* Prevent browser from adding constraints */
-    min-width: 0 !important;
-    max-width: none !important;
-    width: auto !important;
+/* Remove individual field highlighting in edit mode */
+.edit-mode .editable-field {
+    cursor: inherit;
+    pointer-events: none;
 }
 
-/* Specific override for note fields when editing */
-.note.editing-active,
-.note[contenteditable="true"] {
-    display: block !important;
-    width: 100% !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-}
-
-/* Specific override for timestamp, sender, time when editing */
-.timestamp.editing-active,
-.timestamp[contenteditable="true"],
-.sender.editing-active,
-.sender[contenteditable="true"],
-.time.editing-active,
-.time[contenteditable="true"] {
-    display: inline-block !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    white-space: normal !important;
-}
+/* Individual field editing styles removed - now using whole entry selection */

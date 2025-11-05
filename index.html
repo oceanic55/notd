@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Notd*</title>
     <link rel="stylesheet" href="src/styles.css" />
+    <link rel="stylesheet" href="src/navigation.css" />
+    <link rel="stylesheet" href="src/form.css" />
     <link rel="stylesheet" href="src/edit.css" />
     <link rel="stylesheet" href="src/inline-styles.css" />
     <link rel="stylesheet" href="src/ai-modal.css" />
@@ -13,160 +15,169 @@
 </head>
 
 <body>
-    <div id="header">
-        <div id="header-top">
-            <div id="header-buttons">
-                <button id="ai-enter-btn">ENTER</button>
-                <button id="save-btn-header">SAVE</button>
-                <button id="edit-btn">EDIT</button>
-                <input type="file" id="load-file" accept=".json" />
-            </div>
-            <div id="header-title">
-                NOTD*
-                <button id="theme-toggle" title="Toggle light/dark mode">
-                    <img src="svg/light.svg" alt="Toggle theme" />
-                </button>
-            </div>
+    <!-- New Navigation Header -->
+    <nav id="navigation">
+        <!-- Logo Section -->
+        <div class="logo-section">
+            <button class="logo-button" id="logo-btn" aria-label="NOTD*" title="NOTD*">
+                <img src="menu/logo.svg" alt="NOTD*">
+            </button>
         </div>
-        <div id="search-container">
-            <input type="text" id="search-input" placeholder="Search entries..." />
-            <button id="search-clear">Clear</button>
-            <button id="copy-btn">COPY</button>
-            <button id="ai-analyze-btn">AI</button>
-            <span id="search-results"></span>
 
+        <!-- Toggle Buttons -->
+        <div class="toggle-container">
+            <div class="sliding-pill full" id="pill"></div>
+            <button id="fullViewBtn" class="active">
+                ENTER
+                <ul class="dropdown-list" id="dropdownList">
+                    <li data-action="save">SAVE</li>
+                    <li data-action="edit">EDIT</li>
+                    <li data-action="copy">COPY</li>
+                    <li data-action="ai-analyze">AI ANALYZE</li>
+                </ul>
+            </button>
+            <button id="overviewBtn" class="inactive">
+                Overview
+                <ul class="dropdown-list" id="overviewDropdownList">
+                    <li data-action="load">LOAD</li>
+                    <li data-action="api">API</li>
+                    <li data-action="llm">LLM</li>
+                    <li data-action="about">ABOUT</li>
+                </ul>
+            </button>
         </div>
-    </div>
+        
+        <!-- Hidden file input for loading -->
+        <input type="file" id="load-file" accept=".json" style="display: none;" />
+    </nav>
+
+
 
     <!--     -->
     <div id="content">
         <div id="entries-container"></div>
     </div>
 
-    <div id="footer">
-        <div class="footer-line">
-            <a href="#" id="notd-toggle-link">NOTD*</a>
-            <span>&nbsp;&nbsp;3.1.1</span>
-            <span>·</span>
-            <a href="#" id="api-settings-link">API</a>
-            <span>&nbsp;&nbsp;</span>
-        </div>
-        <div class="footer-line">
-            <span>&nbsp;&nbsp;</span>
-            <select id="model-selector">
-                <option value="llama-3.3-70b-versatile">Loading models...</option>
-            </select>
-        </div>
-    </div>
-    </div>
+
 
     <!-- Floating form overlay -->
-    <div id="form-overlay"></div>
-
-    <!-- REPLY WIN -->
-    <div id="ai-analysis-modal">
-        <div id="ai-analysis-header">
-            <button id="ai-essay-btn" title="Generate essay">
-                <img src="svg/llm.svg" alt="Essay" />
-            </button>
-            <button id="ai-copy-btn" title="Copy to clipboard">
-                <img src="svg/copy.svg" alt="Copy" />
-            </button>
-            <button id="ai-close-btn" title="Close">
-                <img src="svg/close.svg" alt="Close" />
-            </button>
-        </div>
-        <div id="ai-analysis-content"></div>
-    </div>
-
-    <!-- Edit Entry Form -->
-    <div id="edit-entry-form"
-        style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #444; padding: 20px; border: 1px solid #666; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); z-index: 1001; min-width: 400px; max-width: 600px;">
-        <div class="form-group">
-            <label for="edit-date-input">Date:</label>
-            <input type="text" id="edit-date-input" />
-        </div>
-        <div class="form-group">
-            <label for="edit-time-input">Time:</label>
-            <input type="text" id="edit-time-input" />
-        </div>
-        <div class="form-group">
-            <label for="edit-place-input">Place:</label>
-            <input type="text" id="edit-place-input" />
-        </div>
-        <div class="form-group">
-            <label for="edit-note-input">Note:</label>
-            <textarea id="edit-note-input" style="
-                        width: 100%;
-                        max-width: 400px;
-                        height: 80px;
-                        background-color: #555;
-                        color: white;
-                        border: 1px solid #777;
-                        padding: 8px;
-                        font-family: monospace;
-                        font-size: 14px;
-                        resize: vertical;
-                    "></textarea>
-        </div>
-        <div style="
-                    margin-top: 10px;
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                ">
-            <button id="edit-llm-reprocess-btn" style="
-                        background-color: #555;
-                        color: white;
-                        border: 1px solid #777;
-                        padding: 6px 14px;
-                        cursor: pointer;
-                        font-family: monospace;
-                        font-size: 13px;
-                        height: 32px;
-                    ">
-                REPROCESS WITH LLM
-            </button>
-            <button id="edit-save-btn" style="
-                        background-color: #FF5100;
-                        color: white;
-                        border: 1px solid #FF5100;
-                        padding: 6px 14px;
-                        cursor: pointer;
-                        font-family: monospace;
-                        font-size: 13px;
-                        height: 32px;
-                    ">
-                SAVE
-            </button>
+    <div id="form-overlay">
+        <!-- Entry Form (New Style) -->
+        <div id="entry-form">
+            <form>
+                <div class="form-group-entry">
+                    <label for="entry-text-input">ENTER TEXT</label>
+                    <textarea id="entry-text-input" name="entry-text" class="entry-field"></textarea>
+                </div>
+                <div class="form-group-process" id="process-group" style="display: none;">
+                    <label for="process-text-input">PROCESSED</label>
+                    <textarea id="process-text-input" name="process-text" class="process-field"></textarea>
+                </div>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="process-btn">Process</button>
+                    <button type="button" class="form-action-btn" id="save-entry-btn">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- AI Entry Form -->
-    <div id="ai-entry-form">
-        <div class="form-group">
-            <label for="ai-date-input">Date:</label>
-            <input type="text" id="ai-date-input" readonly />
+    <!-- AI Analysis Modal -->
+    <div id="ai-analysis-modal-overlay">
+        <div id="ai-analysis-modal">
+            <div id="ai-analysis-content"></div>
+            <div id="ai-analysis-header">
+                <button id="ai-essay-btn">Essay</button>
+                <button id="ai-copy-btn">Copy</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="ai-time-input">Time:</label>
-            <input type="text" id="ai-time-input" readonly />
+    </div>
+
+    <!-- API Settings Form -->
+    <div id="api-settings-overlay">
+        <div id="api-settings-form">
+            <form>
+                <div class="form-group-entry">
+                    <label for="api-key-input">API KEY</label>
+                    <input type="text" id="api-key-input" class="entry-field" />
+                </div>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="api-save-btn">Save</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group">
-            <label for="ai-text-input">Text:</label>
-            <textarea id="ai-text-input"
-                placeholder="Describe your entry in natural language...&#10;e.g., 'Had coffee at Starbucks downtown, discussed the new project with Sarah'"></textarea>
+    </div>
+
+    <!-- LLM Selection Form -->
+    <div id="llm-selection-overlay">
+        <div id="llm-selection-form">
+            <form>
+                <div class="form-group-entry">
+                    <label for="llm-list">SELECT MODEL</label>
+                    <div id="llm-list" class="llm-list"></div>
+                </div>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="llm-close-btn">Close</button>
+                </div>
+            </form>
         </div>
-        <div>
-            <button id="ai-process-btn">PROCESS</button>
-            <button id="ai-save-btn">SAVE</button>
+    </div>
+
+    <!-- About Form -->
+    <div id="about-overlay">
+        <div id="about-form">
+            <form>
+                <div class="form-group-entry">
+                    <label for="about-content">ABOUT</label>
+                    <div id="about-content" class="about-content">
+                        <div class="about-item">App Version: <span id="app-version">4.0.0</span></div>
+                        <div class="about-item">JSON Version: <span id="json-version">Not loaded</span></div>
+                        <div class="about-item">Entries: <span id="entries-count">0</span></div>
+                        <div class="about-item">File: <span id="current-filename">None</span></div>
+                    </div>
+                </div>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="about-close-btn">Close</button>
+                </div>
+            </form>
         </div>
-        <div id="ai-preview"></div>
+    </div>
+
+    <!-- Edit Entry Form Overlay -->
+    <div id="edit-form-overlay">
+        <!-- Edit Entry Form (New Style) -->
+        <div id="edit-entry-form">
+            <form>
+                <div class="form-group-entry">
+                    <label for="edit-date-input">DATE</label>
+                    <input type="text" id="edit-date-input" class="entry-field" />
+                </div>
+                <div class="form-group-entry">
+                    <label for="edit-time-input">TIME</label>
+                    <input type="text" id="edit-time-input" class="entry-field" />
+                </div>
+                <div class="form-group-entry">
+                    <label for="edit-place-input">PLACE</label>
+                    <input type="text" id="edit-place-input" class="entry-field" />
+                </div>
+                <div class="form-group-entry">
+                    <label for="edit-note-input">NOTE</label>
+                    <textarea id="edit-note-input" class="entry-field"></textarea>
+                </div>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="edit-llm-reprocess-btn">Reprocess</button>
+                    <button type="button" class="form-action-btn" id="edit-save-btn">Save</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="src/theme.js"></script>
+    <script src="src/navigation.js"></script>
+    <script src="src/form.js"></script>
     <script src="src/edit.js"></script>
     <script src="src/llm.js"></script>
+    <script src="src/llm-settings.js"></script>
+    <script src="src/about.js"></script>
     <script src="src/essay.js"></script>
     <script src="src/swipe-delete.js"></script>
     <script src="src/diary.js?t=20250126f"></script>

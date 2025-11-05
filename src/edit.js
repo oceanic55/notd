@@ -10,15 +10,20 @@ const EditMode = {
    */
   toggle() {
     this.isActive = !this.isActive;
-    const editBtn = document.getElementById('edit-btn');
     const container = document.getElementById('entries-container');
 
     if (this.isActive) {
-      editBtn.classList.add('active');
-      container.classList.add('edit-mode');
+      if (container) {
+        container.classList.add('edit-mode');
+        // Visual feedback - add a temporary message
+        const message = document.createElement('div');
+        message.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #ff7701; color: white; padding: 10px 20px; border-radius: 4px; z-index: 1000; font-family: Courier New, monospace;';
+        message.textContent = 'Edit mode active - Click any entry to edit';
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 2000);
+      }
     } else {
-      editBtn.classList.remove('active');
-      container.classList.remove('edit-mode');
+      if (container) container.classList.remove('edit-mode');
       this.editingIndex = null;
       this.currentEntryData = null;
     }
@@ -43,7 +48,7 @@ const EditMode = {
    */
   showEditDialog() {
     const form = document.getElementById('edit-entry-form');
-    const overlay = document.getElementById('form-overlay');
+    const overlay = document.getElementById('edit-form-overlay');
 
     if (!form || !overlay) return;
 
@@ -53,17 +58,68 @@ const EditMode = {
     const placeInput = document.getElementById('edit-place-input');
     const noteInput = document.getElementById('edit-note-input');
 
-    if (dateInput) dateInput.value = this.currentEntryData.timestamp || '';
-    if (timeInput) timeInput.value = this.currentEntryData.time || '';
-    if (placeInput) placeInput.value = this.currentEntryData.sender || '';
-    if (noteInput) noteInput.value = this.currentEntryData.note || '';
+    if (dateInput) {
+      dateInput.value = this.currentEntryData.timestamp || '';
+      dateInput.style.height = '24px';
+    }
+    if (timeInput) {
+      timeInput.value = this.currentEntryData.time || '';
+      timeInput.style.height = '24px';
+    }
+    if (placeInput) {
+      placeInput.value = this.currentEntryData.sender || '';
+      placeInput.style.height = '24px';
+    }
+    if (noteInput) {
+      noteInput.value = this.currentEntryData.note || '';
+      // Auto-expand textarea using the helper function
+      setTimeout(() => {
+        noteInput.style.height = 'auto';
+        const newHeight = noteInput.scrollHeight;
+        noteInput.style.height = Math.max(24, newHeight) + 'px';
+      }, 0);
+    }
 
-    // Show form
-    form.style.display = 'block';
-    overlay.style.display = 'block';
+    // Set up button event listeners using event delegation on the form
+    const self = this;
+    
+    // Remove any existing form click listener
+    const formElement = form.querySelector('form');
+    if (formElement) {
+      // Clone to remove all listeners
+      const newForm = formElement.cloneNode(true);
+      formElement.parentNode.replaceChild(newForm, formElement);
+      
+      // Add event delegation listener for buttons
+      newForm.addEventListener('click', function(e) {
+        if (e.target.id === 'edit-llm-reprocess-btn' || e.target.closest('#edit-llm-reprocess-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.handleLLMReprocess();
+        } else if (e.target.id === 'edit-save-btn' || e.target.closest('#edit-save-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.handleSave();
+        }
+      });
+      
+      // Set up auto-expand for the note textarea
+      const editNoteInput = newForm.querySelector('#edit-note-input');
+      if (editNoteInput) {
+        editNoteInput.addEventListener('input', function() {
+          autoExpandTextarea(editNoteInput);
+        });
+      }
+    }
 
-    // Focus on place input
-    if (placeInput) placeInput.focus();
+    // Show form with new styling
+    overlay.classList.add('active');
+    form.classList.add('active');
+
+    // Focus on date input
+    setTimeout(() => {
+      if (dateInput) dateInput.focus();
+    }, 100);
   },
 
   /**
@@ -71,6 +127,8 @@ const EditMode = {
    */
   async handleLLMReprocess() {
     const noteInput = document.getElementById('edit-note-input');
+    const placeInput = document.getElementById('edit-place-input');
+    
     if (!noteInput || !noteInput.value.trim()) {
       alert('Please enter text to reprocess');
       return;
@@ -89,15 +147,22 @@ const EditMode = {
 
     const reprocessBtn = document.getElementById('edit-llm-reprocess-btn');
     if (reprocessBtn) {
-      reprocessBtn.textContent = 'PROCESSING...';
+      reprocessBtn.textContent = 'Processing...';
       reprocessBtn.disabled = true;
     }
 
     try {
-      const result = await window.LLMEntry.processWithLLM(noteInput.value);
+      // Combine note and existing place/sender information for processing
+      let textToProcess = noteInput.value;
+      
+      // If there's existing place/sender information, include it in the processing
+      if (placeInput && placeInput.value.trim()) {
+        textToProcess = `Location: ${placeInput.value.trim()}\n\n${noteInput.value}`;
+      }
+
+      const result = await window.LLMEntry.processWithLLM(textToProcess);
 
       // Update form fields with LLM result
-      const placeInput = document.getElementById('edit-place-input');
       if (placeInput) placeInput.value = result.place;
       if (noteInput) noteInput.value = result.note;
 
@@ -110,7 +175,7 @@ const EditMode = {
       alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
     } finally {
       if (reprocessBtn) {
-        reprocessBtn.textContent = 'REPROCESS WITH LLM';
+        reprocessBtn.textContent = 'Reprocess';
         reprocessBtn.disabled = false;
       }
     }
@@ -148,124 +213,84 @@ const EditMode = {
       DisplayManager.renderEntries(entries);
     }
 
-    // Close dialog and disable edit mode
+    // Close dialog (this will also exit edit mode)
     this.closeEditDialog();
-    this.toggle(); // Disable edit mode
   },
 
   /**
-   * Close edit dialog
+   * Close edit dialog and exit edit mode
    */
   closeEditDialog() {
     const form = document.getElementById('edit-entry-form');
-    const overlay = document.getElementById('form-overlay');
+    const overlay = document.getElementById('edit-form-overlay');
 
-    if (form) form.style.display = 'none';
-    if (overlay) overlay.style.display = 'none';
+    if (form) form.classList.remove('active');
+    if (overlay) overlay.classList.remove('active');
 
     this.editingIndex = null;
     this.currentEntryData = null;
+    
+    // Exit edit mode when closing the dialog
+    if (this.isActive) {
+      this.toggle();
+    }
   },
 
-  /**
-   * Handle inline editing of a field
-   */
-  startEdit(element) {
-    if (element.contentEditable === 'true') return; // Already editing
 
-    const index = parseInt(element.dataset.index);
-    const field = element.dataset.field;
-    const originalText = element.textContent;
-
-    // Make element editable
-    element.contentEditable = 'true';
-    element.classList.add('editing-active');
-    
-    // Force maintain the exact same layout properties via inline styles
-    element.style.whiteSpace = 'normal';
-    element.style.wordWrap = 'break-word';
-    element.style.overflowWrap = 'break-word';
-    
-    // For note fields, ensure block display and full width
-    if (field === 'note') {
-      element.style.display = 'block';
-      element.style.width = '100%';
-    }
-    
-    // Focus and select text
-    element.focus();
-    
-    // Select all text
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    const selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-
-    // Save function
-    const save = () => {
-      element.contentEditable = 'false';
-      element.classList.remove('editing-active');
-      
-      const newValue = element.textContent.trim();
-
-      if (newValue && newValue !== originalText) {
-        // Update the entry in storage
-        const entries = StorageManager.getEntries();
-        if (index >= 0 && index < entries.length) {
-          const fieldMap = {
-            'timestamp': 'timestamp',
-            'sender': 'sender',
-            'time': 'time',
-            'note': 'note'
-          };
-          entries[index][fieldMap[field]] = newValue;
-          
-          // Save to localStorage after edit
-          if (window.StorageManager) {
-            StorageManager.saveToLocalStorage();
-          }
-        }
-        
-        // For note field, re-linkify URLs after saving
-        if (field === 'note' && window.DisplayManager) {
-          element.innerHTML = DisplayManager.linkifyUrls(newValue);
-        } else {
-          element.textContent = newValue;
-        }
-      } else {
-        // Restore original - re-linkify if note field
-        if (field === 'note' && window.DisplayManager) {
-          element.innerHTML = DisplayManager.linkifyUrls(originalText);
-        } else {
-          element.textContent = originalText;
-        }
-      }
-      
-      // Clean up
-      element.removeEventListener('blur', save);
-      element.removeEventListener('keydown', handleKey);
-    };
-
-    // Key handler
-    const handleKey = (e) => {
-      if (e.key === 'Enter') {
-        // Enter saves for all fields
-        e.preventDefault();
-        element.blur();
-      } else if (e.key === 'Escape') {
-        // Escape cancels
-        e.preventDefault();
-        element.textContent = originalText;
-        element.contentEditable = 'false';
-        element.classList.remove('editing-active');
-      }
-    };
-
-    element.addEventListener('blur', save);
-    element.addEventListener('keydown', handleKey);
-  }
 };
+
+// Helper function to auto-expand textarea
+function autoExpandTextarea(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.overflowY = 'hidden';
+  
+  const computedStyle = window.getComputedStyle(textarea);
+  const maxHeight = parseInt(computedStyle.maxHeight);
+  const newHeight = textarea.scrollHeight;
+  
+  if (newHeight >= maxHeight) {
+    textarea.style.height = maxHeight + 'px';
+    textarea.style.overflowY = 'auto';
+  } else {
+    textarea.style.height = newHeight + 'px';
+    textarea.style.overflowY = 'hidden';
+  }
+}
+
+// Initialize edit form overlay handlers
+document.addEventListener('DOMContentLoaded', () => {
+  // Close edit form when clicking overlay
+  const editOverlay = document.getElementById('edit-form-overlay');
+  if (editOverlay) {
+    editOverlay.addEventListener('click', (e) => {
+      if (e.target === editOverlay) {
+        EditMode.closeEditDialog();
+      }
+    });
+  }
+
+  // ESC key to close edit form or exit edit mode
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const editForm = document.getElementById('edit-entry-form');
+      if (editForm && editForm.classList.contains('active')) {
+        // If edit dialog is open, close it
+        EditMode.closeEditDialog();
+      } else if (EditMode.isActive) {
+        // If edit mode is active but no dialog is open, exit edit mode
+        EditMode.toggle();
+      }
+    }
+  });
+  
+  // Set up auto-expand for edit form textareas
+  const editNoteInput = document.getElementById('edit-note-input');
+  if (editNoteInput) {
+    editNoteInput.addEventListener('input', () => {
+      autoExpandTextarea(editNoteInput);
+    });
+  }
+});
 
 // Export for use in main app
 window.EditMode = EditMode;

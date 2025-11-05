@@ -8,6 +8,12 @@
 
 ## Changelog
 
+v4.0.0
+New UI.
+
+11.05::16:25
+
+
 v3.1.1
 Fixed light mode text visibility in LLM dialogue box (was white on light background). SVG icon colors now properly invert based on theme (dark icons in light mode, light icons in dark mode). Theme variables now apply globally to all modals and UI elements.
 

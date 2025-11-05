@@ -434,15 +434,7 @@ const App = {
             editBtn.addEventListener('click', () => this.toggleEditMode());
         }
 
-        // Set up click handler for editable fields (using event delegation)
-        const entriesContainer = document.getElementById('entries-container');
-        if (entriesContainer) {
-            entriesContainer.addEventListener('click', (e) => {
-                if (EditMode.isActive && e.target.classList.contains('editable-field')) {
-                    EditMode.startEdit(e.target);
-                }
-            });
-        }
+        // Individual field editing removed - now only whole entry editing is supported
 
         // Set up sequential field prompting
         const placeInput = document.getElementById('place-input');

@@ -27,8 +27,7 @@ const EssayGenerator = {
             this.styleExamples = await response.text();
             return this.styleExamples;
         } catch (error) {
-            console.error('Error loading style examples:', error);
-            // Fallback to empty string if file can't be loaded
+            // Silently fallback to empty string if file can't be loaded (e.g., CORS when running from file://)
             this.styleExamples = '';
             return this.styleExamples;
         }

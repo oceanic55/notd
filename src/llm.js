@@ -56,10 +56,25 @@ const LLMEntry = {
       aiCopyBtn.addEventListener('click', () => this.copyAnalysisToClipboard());
     }
 
-    const aiCloseBtn = document.getElementById('ai-close-btn');
-    if (aiCloseBtn) {
-      aiCloseBtn.addEventListener('click', () => this.closeAnalysisModal());
+    // Set up overlay click to close modal
+    const aiModalOverlay = document.getElementById('ai-analysis-modal-overlay');
+    if (aiModalOverlay) {
+      aiModalOverlay.addEventListener('click', (e) => {
+        if (e.target === aiModalOverlay) {
+          this.closeAnalysisModal();
+        }
+      });
     }
+
+    // Set up ESC key to close modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('ai-analysis-modal-overlay');
+        if (modal && modal.classList.contains('active')) {
+          this.closeAnalysisModal();
+        }
+      }
+    });
 
     // Set up API settings link
     const apiSettingsLink = document.getElementById('api-settings-link');
@@ -555,27 +570,23 @@ const LLMEntry = {
   },
 
   /**
-   * Show REPLY WIN (analysis modal)
+   * Show AI Analysis modal (new form-style)
    */
   showAnalysisModal(result) {
-    const modal = document.getElementById('ai-analysis-modal');
+    const modalOverlay = document.getElementById('ai-analysis-modal-overlay');
     const content = document.getElementById('ai-analysis-content');
-    const overlay = document.getElementById('form-overlay');
+    const formOverlay = document.getElementById('form-overlay');
 
     if (content) {
-      // Build simplified status info with model name
-      const statusText = result.isComplete ? 'Complete' : `Incomplete (${result.finishReason})`;
-      const statusLine = `${statusText}. Tokens used: ${result.usage.totalTokens}<br>Model: ${this.selectedModel}`;
-      
       // Store only the analysis text for copying (without tokens/model info)
       this.currentAnalysis = result.analysis;
       
-      // Display analysis text with status info at the bottom in orange
-      content.innerHTML = `${result.analysis}\n\n<span style="color: #FF5100;">${statusLine}</span>`;
+      // Display analysis text (plain text, no HTML formatting)
+      content.textContent = result.analysis;
     }
     
-    if (modal) modal.style.display = 'block';
-    if (overlay) overlay.style.display = 'block';
+    if (modalOverlay) modalOverlay.classList.add('active');
+    if (formOverlay) formOverlay.classList.add('active');
   },
 
   /**
@@ -601,14 +612,14 @@ const LLMEntry = {
   },
 
   /**
-   * Close REPLY WIN (analysis modal)
+   * Close AI Analysis modal
    */
   closeAnalysisModal() {
-    const modal = document.getElementById('ai-analysis-modal');
-    const overlay = document.getElementById('form-overlay');
+    const modalOverlay = document.getElementById('ai-analysis-modal-overlay');
+    const formOverlay = document.getElementById('form-overlay');
 
-    if (modal) modal.style.display = 'none';
-    if (overlay) overlay.style.display = 'none';
+    if (modalOverlay) modalOverlay.classList.remove('active');
+    if (formOverlay) formOverlay.classList.remove('active');
     this.currentAnalysis = null;
   }
 };

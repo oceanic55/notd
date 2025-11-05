@@ -42,7 +42,6 @@ const StorageManager = {
             if (savedEntries) {
                 this.currentEntries = JSON.parse(savedEntries);
                 this.currentFileName = savedFileName || null;
-                console.log(`Auto-loaded ${this.currentEntries.length} entries from localStorage`);
 
                 // Restore timestamp in footer if available
                 if (savedTimestamp) {
@@ -302,11 +301,9 @@ const DisplayManager = {
      * @param {DiaryEntry[]} entries - Array of diary entries to render
      */
     renderEntries(entries) {
-        console.log('Rendering', entries.length, 'entries');
         this.clearDisplay();
         entries.forEach((entry, index) => this.appendEntry(entry, index));
         const container = document.getElementById('entries-container');
-        console.log('Container now has', container?.children.length, 'children');
         
         // Force scroll to top
         const content = document.getElementById('content');
@@ -397,6 +394,9 @@ const DisplayManager = {
     }
 };
 
+// Export DisplayManager for use in other modules
+window.DisplayManager = DisplayManager;
+
 // Application Controller
 const App = {
     editMode: false,
@@ -457,6 +457,11 @@ const App = {
         const entriesContainer = document.getElementById('entries-container');
         if (entriesContainer) {
             entriesContainer.addEventListener('click', (e) => {
+                // Don't handle clicks on delete buttons
+                if (e.target.classList.contains('delete-button')) {
+                    return;
+                }
+                
                 // Check if clicking on a message wrapper or its children
                 const wrapper = e.target.closest('.message-wrapper');
                 if (EditMode.isActive && wrapper) {
@@ -476,7 +481,11 @@ const App = {
 
         const editLLMReprocessBtn = document.getElementById('edit-llm-reprocess-btn');
         if (editLLMReprocessBtn) {
-            editLLMReprocessBtn.addEventListener('click', () => EditMode.handleLLMReprocess());
+            editLLMReprocessBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                EditMode.handleLLMReprocess();
+            });
         }
 
         // Set up sequential field prompting

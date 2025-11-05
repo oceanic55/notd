@@ -1,10 +1,6 @@
 /* Extracted inline styles from index.html */
 
-/* Search input specific styling */
-#search-input {
-    width: 120px !important;
-    max-width: 120px !important;
-}
+/* Search input removed */
 
 /* Footer styling */
 #notd-toggle-link {
@@ -40,115 +36,9 @@
     cursor: pointer;
 }
 
-/* AI Analysis Modal */
-#ai-analysis-modal {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #444;
-    padding: 20px;
-    border: 1px solid #666;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    z-index: 1001;
-    min-width: 400px;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
+/* AI Analysis Modal styling removed - now using ai-modal.css */
 
-#ai-analysis-modal h2 {
-    color: #FF5100;
-    font-size: 18px;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-#ai-model-display {
-    color: #888;
-    font-size: 12px;
-    font-weight: normal;
-    margin-left: 10px;
-}
-
-#ai-analysis-content {
-    background-color: #3a3a3a;
-    padding: 15px;
-    border: 1px solid #555;
-    border-radius: 4px;
-    white-space: pre-wrap;
-    line-height: 1.6;
-}
-
-#ai-analysis-close {
-    margin-top: 15px;
-    background-color: #555;
-    color: white;
-    border: 1px solid #777;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-family: monospace;
-    font-size: 13px;
-    height: 32px;
-}
-
-/* AI Entry Form */
-#ai-entry-form {
-    display: none;
-}
-
-#ai-text-input {
-    width: 100%;
-    max-width: 400px;
-    height: 80px;
-    background-color: #555;
-    color: white;
-    border: 1px solid #777;
-    padding: 8px;
-    font-family: monospace;
-    font-size: 14px;
-    resize: vertical;
-}
-
-#ai-entry-form > div:nth-of-type(4) {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-#ai-process-btn {
-    background-color: #555;
-    color: white;
-    border: 1px solid #777;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-family: monospace;
-    font-size: 13px;
-    height: 32px;
-}
-
-#ai-save-btn {
-    display: none;
-    background-color: #FF5100;
-    color: white;
-    border: 1px solid #FF5100;
-    padding: 6px 14px;
-    cursor: pointer;
-    font-family: monospace;
-    font-size: 13px;
-    height: 32px;
-}
-
-#ai-preview {
-    display: none;
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #3a3a3a;
-    border: 1px solid #555;
-    border-radius: 4px;
-}
+/* Old AI Entry Form styles removed - now using form.css */
 
 /* Hidden file input */
 #load-file {
