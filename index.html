@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>Notd*</title>
     <link rel="stylesheet" href="src/styles.css" />
     <link rel="stylesheet" href="src/navigation.css" />
@@ -33,17 +33,11 @@
                     <li data-action="save">SAVE</li>
                     <li data-action="edit">EDIT</li>
                     <li data-action="copy">COPY</li>
-                    <li data-action="ai-analyze">AI ANALYZE</li>
+                    <li data-action="ai-analyze">AI</li>
                 </ul>
             </button>
-            <button id="overviewBtn" class="inactive">
-                Overview
-                <ul class="dropdown-list" id="overviewDropdownList">
-                    <li data-action="load">LOAD</li>
-                    <li data-action="api">API</li>
-                    <li data-action="llm">LLM</li>
-                    <li data-action="about">ABOUT</li>
-                </ul>
+            <button id="aboutBtn" class="inactive">
+                ABOUT
             </button>
         </div>
         
@@ -92,51 +86,45 @@
         </div>
     </div>
 
-    <!-- API Settings Form -->
-    <div id="api-settings-overlay">
-        <div id="api-settings-form">
-            <form>
-                <div class="form-group-entry">
-                    <label for="api-key-input">API KEY</label>
-                    <input type="text" id="api-key-input" class="entry-field" />
-                </div>
-                <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="api-save-btn">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- LLM Selection Form -->
-    <div id="llm-selection-overlay">
-        <div id="llm-selection-form">
-            <form>
-                <div class="form-group-entry">
-                    <label for="llm-list">SELECT MODEL</label>
-                    <div id="llm-list" class="llm-list"></div>
-                </div>
-                <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="llm-close-btn">Close</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- About Form -->
-    <div id="about-overlay">
-        <div id="about-form">
+    <!-- Combined About Form -->
+    <div id="combined-about-overlay">
+        <div id="combined-about-form">
             <form>
+                <!-- Load, API and Close Buttons Section -->
                 <div class="form-group-entry">
-                    <label for="about-content">ABOUT</label>
-                    <div id="about-content" class="about-content">
-                        <div class="about-item">App Version: <span id="app-version">4.0.1</span></div>
-                        <div class="about-item">JSON Version: <span id="json-version">Not loaded</span></div>
-                        <div class="about-item">Entries: <span id="entries-count">0</span></div>
-                        <div class="about-item">File: <span id="current-filename">None</span></div>
+                    <div class="button-row">
+                        <button type="button" class="form-action-btn load-btn" id="combined-load-btn">LOAD</button>
+                        <button type="button" class="form-action-btn load-btn" id="combined-api-btn">API</button>
+                        <button type="button" class="form-action-btn load-btn" id="combined-close-btn">CLOSE</button>
                     </div>
                 </div>
-                <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="about-close-btn">Close</button>
+                
+                <!-- API Entry Overlay (hidden by default) -->
+                <div class="api-entry-overlay" id="api-entry-overlay" style="display: none;">
+                    <div class="form-group-entry">
+                        <label for="combined-api-key-input">API KEY</label>
+                        <input type="text" id="combined-api-key-input" class="entry-field" />
+                    </div>
+                    <div class="form-button-group" style="position: relative; margin-top: 20px;">
+                        <button type="button" class="form-action-btn" id="api-entry-close-btn">Close</button>
+                    </div>
+                </div>
+                
+                <!-- LLM Section -->
+                <div class="form-group-entry" id="llm-section">
+                    <div id="combined-llm-list" class="llm-list"></div>
+                </div>
+                
+                <!-- About Section -->
+                <div class="form-group-entry" id="about-section">
+                    <div id="combined-about-content" class="about-content">
+                        <div class="about-item">App Version: <span id="combined-app-version">4.2.0</span></div>
+                        <div class="about-item">JSON Version: <span id="combined-json-version">Not loaded</span></div>
+                        <div class="about-item">Entries: <span id="combined-entries-count">0</span></div>
+                        <div class="about-item">File: <span id="combined-current-filename">None</span></div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -171,6 +159,7 @@
         </div>
     </div>
 
+    <script src="src/viewport-fix.js"></script>
     <script src="src/theme.js"></script>
     <script src="src/navigation.js"></script>
     <script src="src/form.js"></script>
@@ -178,6 +167,7 @@
     <script src="src/llm.js"></script>
     <script src="src/llm-settings.js"></script>
     <script src="src/about.js"></script>
+    <script src="src/combined-about.js"></script>
     <script src="src/essay.js"></script>
     <script src="src/swipe-delete.js"></script>
     <script src="src/diary.js?t=20250126f"></script>

@@ -8,6 +8,44 @@
 
 ## Changelog
 
+v4.2.0
+Major UI/UX improvements to the About form and cross-browser compatibility enhancements:
+
+**About Form Redesign:**
+- Replaced "Overview" button with "ABOUT" button for clearer navigation
+- Redesigned About form with LOAD, API, and CLOSE buttons in a horizontal row
+- Added dedicated API entry overlay that appears above all other content when API button is clicked
+- API overlay features centered layout with responsive design for mobile devices
+- On mobile (≤768px), API keys display as "...XXXX" (last 4 digits) for better UX
+- API field expands to full key when user starts editing
+- Removed "SELECT MODEL" label and centered all remaining labels for cleaner appearance
+- LLM model list now displays all 5 Groq models without scrolling: Qwen 3 32B, Compound Mini, Llama 3.1 8B Instant, Llama 3.3 70B Versatile, Kimi K2 Instruct
+- Removed border lines from About section for more compact display
+- Added automatic form closure when JSON files are loaded via LOAD button
+
+**Mobile & Touch Improvements:**
+- Added 50% opacity orange background (#fb8201) for all buttons on mobile/touch devices since hover effects don't work
+- Improved button visibility and touch feedback across all interactive elements
+- Enhanced responsive design for API entry field with proper centering and sizing
+
+**Edit Mode Enhancements:**
+- Fixed NOTE field expansion in edit mode - now uses flexbox layout to fill all available space between PLACE field and buttons
+- Eliminated complex autosizing calculations in favor of reliable CSS flexbox solution
+- NOTE field automatically adapts to any screen size and form height
+- Improved cross-browser viewport height (vh) compatibility between Safari and Firefox
+- Added viewport-fix.js for consistent behavior across all browsers
+- Edit mode info window ("EDIT MODE ACTIVE...") removed for cleaner UX
+- About form automatically closes when edit mode is activated
+
+**Technical Improvements:**
+- Implemented CSS custom properties (--vh) for consistent viewport height handling
+- Added comprehensive fallbacks for older browsers
+- Enhanced mobile browser compatibility with proper viewport scaling
+- Optimized performance with requestAnimationFrame for viewport updates
+- Improved event handling and form state management
+
+01.06::12:10
+
 v4.0.1
 Fixed click-outside-to-close functionality for all forms and modals. Updated CSS pointer-events from 'none' to 'auto' on overlays and added event.stopPropagation() to form containers to prevent accidental closures. Enhanced mobile browser compatibility for automatic text field focus when opening entry form - focus now triggers within the same user event context with multiple fallback mechanisms including click events and touch handlers. Added mobile-specific CSS properties for better text selection behavior.
 

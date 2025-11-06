@@ -166,10 +166,11 @@ const LLMEntry = {
       
       // Fallback to default models list
       const fallbackModels = [
-        'llama-3.3-70b-versatile',
+        'qwen/qwen3-32b',
+        'groq/compound-mini',
         'llama-3.1-8b-instant',
-        'mixtral-8x7b-32768',
-        'gemma2-9b-it'
+        'llama-3.3-70b-versatile',
+        'moonshotai/kimi-k2-instruct-0905'
       ];
 
       selectElement.innerHTML = '';

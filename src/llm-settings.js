@@ -91,58 +91,36 @@ const LLMSettings = {
         const llmList = document.getElementById('llm-list');
         if (!llmList) return;
 
-        llmList.innerHTML = '<div class="llm-item">Loading models...</div>';
+        // Predefined list of allowed models
+        const allowedModels = [
+            'qwen/qwen3-32b',
+            'groq/compound-mini',
+            'llama-3.1-8b-instant',
+            'llama-3.3-70b-versatile',
+            'moonshotai/kimi-k2-instruct-0905'
+        ];
 
-        try {
-            const response = await fetch('https://api.groq.com/openai/v1/models', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${window.LLMEntry?.apiKey || ''}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+        llmList.innerHTML = '';
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch models');
+        // Display models as list items
+        allowedModels.forEach(modelId => {
+            const item = document.createElement('div');
+            item.className = 'llm-item';
+            item.textContent = modelId;
+            item.dataset.modelId = modelId;
+
+            // Highlight current model
+            if (window.LLMEntry && modelId === window.LLMEntry.selectedModel) {
+                item.classList.add('selected');
             }
 
-            const data = await response.json();
-            const models = data.data || [];
-
-            llmList.innerHTML = '';
-
-            if (models.length === 0) {
-                llmList.innerHTML = '<div class="llm-item">No models available</div>';
-                return;
-            }
-
-            // Sort models by ID
-            models.sort((a, b) => a.id.localeCompare(b.id));
-
-            // Display models as list items
-            models.forEach(model => {
-                const item = document.createElement('div');
-                item.className = 'llm-item';
-                item.textContent = model.id;
-                item.dataset.modelId = model.id;
-
-                // Highlight current model
-                if (window.LLMEntry && model.id === window.LLMEntry.selectedModel) {
-                    item.classList.add('selected');
-                }
-
-                // Click to select
-                item.addEventListener('click', () => {
-                    this.selectModel(model.id);
-                });
-
-                llmList.appendChild(item);
+            // Click to select
+            item.addEventListener('click', () => {
+                this.selectModel(modelId);
             });
 
-        } catch (error) {
-            console.error('Error loading models:', error);
-            llmList.innerHTML = '<div class="llm-item">Error loading models. Check API key.</div>';
-        }
+            llmList.appendChild(item);
+        });
     },
 
     selectModel(modelId) {

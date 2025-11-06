@@ -15,12 +15,6 @@ const EditMode = {
     if (this.isActive) {
       if (container) {
         container.classList.add('edit-mode');
-        // Visual feedback - add a temporary message
-        const message = document.createElement('div');
-        message.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #ff7701; color: white; padding: 10px 20px; border-radius: 4px; z-index: 1000; font-family: Courier New, monospace;';
-        message.textContent = 'Edit mode active - Click any entry to edit';
-        document.body.appendChild(message);
-        setTimeout(() => message.remove(), 2000);
       }
     } else {
       if (container) container.classList.remove('edit-mode');
@@ -74,9 +68,7 @@ const EditMode = {
       noteInput.value = this.currentEntryData.note || '';
       // Auto-expand textarea using the helper function
       setTimeout(() => {
-        noteInput.style.height = 'auto';
-        const newHeight = noteInput.scrollHeight;
-        noteInput.style.height = Math.max(24, newHeight) + 'px';
+        autoExpandTextarea(noteInput);
       }, 0);
     }
 

@@ -8,7 +8,7 @@ class Navigation {
         
         this.pill = document.getElementById('pill');
         this.fullViewBtn = document.getElementById('fullViewBtn');
-        this.overviewBtn = document.getElementById('overviewBtn');
+        this.aboutBtn = document.getElementById('aboutBtn');
         this.logoBtn = document.getElementById('logo-btn');
         
         this.initializeEventListeners();
@@ -53,17 +53,17 @@ class Navigation {
             }
         });
         
-        // Overview button - toggle dropdown
-        this.overviewBtn.addEventListener('click', (e) => {
+        // About button - open combined about form
+        this.aboutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
             
             if (this.activeView === 'overview') {
-                this.toggleDropdown('overviewDropdownList');
+                this.openCombinedAbout();
             } else {
                 this.setActiveView('overview');
                 setTimeout(() => {
-                    this.toggleDropdown('overviewDropdownList');
+                    this.openCombinedAbout();
                 }, 300);
             }
         });
@@ -91,39 +91,14 @@ class Navigation {
             });
         }
 
-        // Dropdown item clicks for Overview dropdown
-        const overviewDropdownList = document.getElementById('overviewDropdownList');
-        if (overviewDropdownList) {
-            overviewDropdownList.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const li = e.target.closest('li');
-                if (li) {
-                    const action = li.dataset.action;
-                    // Close dropdown with ease-out transition
-                    overviewDropdownList.classList.remove('show');
-                    // Execute action after a brief delay
-                    setTimeout(() => {
-                        this.handleOverviewAction(action);
-                        // Reset to initial state after action
-                        setTimeout(() => {
-                            this.setActiveView('full');
-                        }, 100);
-                    }, 50);
-                }
-            });
-        }
+
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             const dropdown = document.getElementById('dropdownList');
-            const overviewDropdown = document.getElementById('overviewDropdownList');
             
             if (dropdown && !this.fullViewBtn.contains(e.target)) {
                 dropdown.classList.remove('show');
-            }
-            if (overviewDropdown && !this.overviewBtn.contains(e.target)) {
-                overviewDropdown.classList.remove('show');
             }
         });
 
@@ -133,13 +108,13 @@ class Navigation {
         if (!isTouchDevice) {
             this.fullViewBtn.addEventListener('mouseenter', () => this.setHoverView('full'));
             this.fullViewBtn.addEventListener('mouseleave', () => this.setHoverView(null));
-            this.overviewBtn.addEventListener('mouseenter', () => this.setHoverView('overview'));
-            this.overviewBtn.addEventListener('mouseleave', () => this.setHoverView(null));
+            this.aboutBtn.addEventListener('mouseenter', () => this.setHoverView('overview'));
+            this.aboutBtn.addEventListener('mouseleave', () => this.setHoverView(null));
         }
 
         // Keyboard navigation
         this.fullViewBtn.addEventListener('keydown', (e) => this.handleKeyboard(e, 'full'));
-        this.overviewBtn.addEventListener('keydown', (e) => this.handleKeyboard(e, 'overview'));
+        this.aboutBtn.addEventListener('keydown', (e) => this.handleKeyboard(e, 'overview'));
     }
 
     handleLogoClick(event) {
@@ -187,26 +162,16 @@ class Navigation {
         }
     }
 
-    handleOverviewAction(action) {
-        switch (action) {
-            case 'load':
-                // Trigger file load (same as old NOTD* button)
-                this.handleLoadFile();
-                break;
-            case 'api':
-                // Open API settings form
-                this.openAPISettings();
-                break;
-            case 'llm':
-                // Open LLM selection form
-                this.openLLMSelection();
-                break;
-            case 'about':
-                // Open About form
-                this.openAbout();
-                break;
-            default:
-                console.log('Unknown overview action:', action);
+    openCombinedAbout() {
+        const overlay = document.getElementById('combined-about-overlay');
+        const form = document.getElementById('combined-about-form');
+        
+        if (overlay && form) {
+            overlay.classList.add('active');
+            form.classList.add('active');
+            
+            // Initialize the combined form content
+            this.initializeCombinedAboutForm();
         }
     }
 
@@ -235,50 +200,15 @@ class Navigation {
         }
     }
 
-    openAPISettings() {
-        const overlay = document.getElementById('api-settings-overlay');
-        const form = document.getElementById('api-settings-form');
-        
-        if (overlay && form) {
-            overlay.classList.add('active');
-            form.classList.add('active');
-            
-            // Load current API key
-            const apiKeyInput = document.getElementById('api-key-input');
-            if (apiKeyInput && window.LLMEntry) {
-                apiKeyInput.value = window.LLMEntry.apiKey || '';
-                setTimeout(() => apiKeyInput.focus(), 100);
-            }
+    initializeCombinedAboutForm() {
+        // Load LLM models
+        if (window.CombinedAboutForm) {
+            window.CombinedAboutForm.loadModels();
         }
-    }
-
-    openLLMSelection() {
-        const overlay = document.getElementById('llm-selection-overlay');
-        const form = document.getElementById('llm-selection-form');
         
-        if (overlay && form) {
-            overlay.classList.add('active');
-            form.classList.add('active');
-            
-            // Load LLM models
-            if (window.LLMSettings) {
-                window.LLMSettings.loadModels();
-            }
-        }
-    }
-
-    openAbout() {
-        const overlay = document.getElementById('about-overlay');
-        const form = document.getElementById('about-form');
-        
-        if (overlay && form) {
-            overlay.classList.add('active');
-            form.classList.add('active');
-            
-            // Update About information
-            if (window.AboutInfo) {
-                window.AboutInfo.updateInfo();
-            }
+        // Update About information
+        if (window.CombinedAboutForm) {
+            window.CombinedAboutForm.updateAboutInfo();
         }
     }
 
@@ -303,7 +233,7 @@ class Navigation {
         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
             e.preventDefault();
             const targetView = currentButton === 'full' ? 'overview' : 'full';
-            const targetBtn = currentButton === 'full' ? this.overviewBtn : this.fullViewBtn;
+            const targetBtn = currentButton === 'full' ? this.aboutBtn : this.fullViewBtn;
             this.setActiveView(targetView);
             targetBtn.focus();
         }
@@ -319,18 +249,13 @@ class Navigation {
         if (currentView === 'full') {
             this.fullViewBtn.classList.remove('inactive');
             this.fullViewBtn.classList.add('active');
-            this.overviewBtn.classList.remove('active');
-            this.overviewBtn.classList.add('inactive');
-            
-            const overviewDropdown = document.getElementById('overviewDropdownList');
-            if (overviewDropdown) {
-                overviewDropdown.classList.remove('show');
-            }
+            this.aboutBtn.classList.remove('active');
+            this.aboutBtn.classList.add('inactive');
         } else {
             this.fullViewBtn.classList.remove('active');
             this.fullViewBtn.classList.add('inactive');
-            this.overviewBtn.classList.remove('inactive');
-            this.overviewBtn.classList.add('active');
+            this.aboutBtn.classList.remove('inactive');
+            this.aboutBtn.classList.add('active');
             
             const dropdown = document.getElementById('dropdownList');
             if (dropdown) {

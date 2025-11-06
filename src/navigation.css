@@ -91,6 +91,11 @@ nav#navigation {
     transition: color 300ms;
     outline: none;
     height: auto;
+    /* Prevent mobile browser default styling */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #navigation button.active {
@@ -98,7 +103,19 @@ nav#navigation {
 }
 
 #navigation button.inactive {
-    color: rgba(255, 255, 255, 0.6);
+    color: #000;
+}
+
+/* Ensure active buttons stay white even when pressed/focused on mobile */
+#navigation button.active:active,
+#navigation button.active:focus {
+    color: white !important;
+}
+
+/* Ensure inactive buttons stay black when pressed/focused on mobile */
+#navigation button.inactive:active,
+#navigation button.inactive:focus {
+    color: #000 !important;
 }
 
 #navigation button:focus-visible {
@@ -106,10 +123,23 @@ nav#navigation {
     outline-offset: 2px;
 }
 
-/* Disable hover effects on touch devices */
+/* Disable hover effects on touch devices and ensure proper touch states */
 @media (hover: none) {
     #navigation button:hover {
         color: inherit;
+    }
+    
+    /* Ensure proper colors on touch devices */
+    #navigation button.active:active,
+    #navigation button.active:focus,
+    #navigation button.active:-webkit-any-link {
+        color: white !important;
+    }
+    
+    #navigation button.inactive:active,
+    #navigation button.inactive:focus,
+    #navigation button.inactive:-webkit-any-link {
+        color: #000 !important;
     }
 }
 
