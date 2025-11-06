@@ -178,7 +178,7 @@ const EditMode = {
       alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
     } finally {
       if (reprocessBtn) {
-        reprocessBtn.textContent = 'Reprocess';
+        reprocessBtn.textContent = 'Ai';
         reprocessBtn.disabled = false;
       }
     }

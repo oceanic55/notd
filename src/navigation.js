@@ -3,7 +3,7 @@
 
 class Navigation {
     constructor() {
-        this.activeView = 'full';
+        this.activeView = 'overview';
         this.hoverView = null;
         
         this.pill = document.getElementById('pill');

@@ -205,16 +205,32 @@
     color: #e8e8e8;
 }
 
-/* REWRITE button specific styling */
+/* AI button specific styling */
 #edit-llm-reprocess-btn {
-    background-color: rgba(251, 130, 1, 0.2);
-    border: none;
-    color: #000;
+    background-color: #E64500 !important;
+    border: none !important;
+    color: #000 !important;
+    opacity: 1;
+    transition: all 0.3s ease;
 }
 
 #edit-llm-reprocess-btn:hover {
-    background-color: #ff7701;
-    color: #e8e8e8;
+    background-color: #E64500 !important;
+    color: #000 !important;
+    opacity: 0.7;
+}
+
+/* Mobile styling for AI button */
+@media (max-width: 768px), (hover: none) {
+    #edit-llm-reprocess-btn {
+        background-color: #E64500 !important;
+        color: #000 !important;
+    }
+    
+    #edit-llm-reprocess-btn:hover {
+        background-color: #E64500 !important;
+        color: #000 !important;
+    }
 }
 
 /* DELETE button specific styling */
@@ -489,7 +505,7 @@
 }
 
 .llm-item {
-    padding: 15px 0;
+    padding: 15px 20px;
     cursor: pointer;
     font-family: 'Courier New', monospace;
     font-size: 16px;

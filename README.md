@@ -8,6 +8,15 @@
 
 ## Changelog
 
+v4.5.0
+- Streamlined changelog management process to prompt for version number instead of extracting from git
+- Updated guidelines to new 4-step process: prompt version, review history, write changelog, update app
+- Removed automatic version extraction from git commit messages
+- Removed automatic system time retrieval requirements
+- Simplified changelog workflow for faster updates
+
+11.06::17:38
+
 v4.4.1
 - Updated changelog management process to retrieve version from git commit messages
 - Added automatic system time retrieval using date command for accurate timestamps

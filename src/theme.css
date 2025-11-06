@@ -164,6 +164,13 @@ body {
     background-color: var(--accent-primary);
     color: white;
     border: 1px solid var(--accent-primary);
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+#ai-save-btn:hover,
+#edit-save-btn:hover {
+    opacity: 0.7;
 }
 
 #edit-llm-reprocess-btn,

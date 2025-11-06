@@ -21,9 +21,9 @@ main {
 nav {
     width: 490px;
     max-width: calc(100% - 2rem);
-    background-color: rgba(232, 232, 232, 0.5);
+    background-color: #E6E5DF;
     border-radius: 12px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.06rem 0.75rem;
     display: flex;
     flex-direction: row;
     align-items: center;

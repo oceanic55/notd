@@ -26,11 +26,11 @@
 
         <!-- Toggle Buttons -->
         <div class="toggle-container">
-            <div class="sliding-pill full" id="pill"></div>
-            <button id="fullViewBtn" class="active">
+            <div class="sliding-pill overview" id="pill"></div>
+            <button id="fullViewBtn" class="inactive">
                 LLM
             </button>
-            <button id="aboutBtn" class="inactive">
+            <button id="aboutBtn" class="active">
                 ABOUT
             </button>
         </div>
@@ -119,7 +119,7 @@
                 <!-- About Section -->
                 <div class="form-group-entry" id="about-section">
                     <div id="combined-about-content" class="about-content">
-                        <div class="about-item">App Version: <span id="combined-app-version">4.3.0</span></div>
+                        <div class="about-item">App Version: <span id="combined-app-version">4.5.0</span></div>
                         <div class="about-item">JSON Version: <span id="combined-json-version">Not loaded</span></div>
                         <div class="about-item">Entries: <span id="combined-entries-count">0</span></div>
                         <div class="about-item">File: <span id="combined-current-filename">None</span></div>
@@ -151,7 +151,7 @@
                     <textarea id="edit-note-input" class="entry-field"></textarea>
                 </div>
                 <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="edit-llm-reprocess-btn">Rewrite</button>
+                    <button type="button" class="form-action-btn" id="edit-llm-reprocess-btn">Ai</button>
                     <button type="button" class="form-action-btn" id="edit-delete-btn">Delete</button>
                     <button type="button" class="form-action-btn" id="edit-save-btn">Save</button>
                     <button type="button" class="form-action-btn" id="edit-close-btn">Close</button>

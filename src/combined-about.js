@@ -302,7 +302,7 @@ const CombinedAboutForm = {
         // Update app version
         const appVersion = document.getElementById('combined-app-version');
         if (appVersion) {
-            appVersion.textContent = '4.2.0';
+            appVersion.textContent = '4.5.0';
         }
     },
 
