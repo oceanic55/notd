@@ -83,7 +83,7 @@ nav#navigation {
     min-width: 0;
     padding: 0.625rem 0;
     border: none;
-    background: transparent;
+    background: transparent !important;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 400;
@@ -96,6 +96,10 @@ nav#navigation {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-shadow: none !important;
 }
 
 #navigation button.active {
@@ -108,14 +112,20 @@ nav#navigation {
 
 /* Ensure active buttons stay white even when pressed/focused on mobile */
 #navigation button.active:active,
-#navigation button.active:focus {
+#navigation button.active:focus,
+#navigation button.active:visited,
+#navigation button.active:link {
     color: white !important;
+    background: transparent !important;
 }
 
 /* Ensure inactive buttons stay black when pressed/focused on mobile */
 #navigation button.inactive:active,
-#navigation button.inactive:focus {
+#navigation button.inactive:focus,
+#navigation button.inactive:visited,
+#navigation button.inactive:link {
     color: #000 !important;
+    background: transparent !important;
 }
 
 #navigation button:focus-visible {
@@ -125,21 +135,37 @@ nav#navigation {
 
 /* Disable hover effects on touch devices and ensure proper touch states */
 @media (hover: none) {
+    #navigation button {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
     #navigation button:hover {
         color: inherit;
+        background: transparent !important;
     }
     
     /* Ensure proper colors on touch devices */
+    #navigation button.active,
     #navigation button.active:active,
     #navigation button.active:focus,
-    #navigation button.active:-webkit-any-link {
+    #navigation button.active:visited,
+    #navigation button.active:link {
         color: white !important;
+        background: transparent !important;
     }
     
+    #navigation button.inactive,
     #navigation button.inactive:active,
     #navigation button.inactive:focus,
-    #navigation button.inactive:-webkit-any-link {
+    #navigation button.inactive:visited,
+    #navigation button.inactive:link {
         color: #000 !important;
+        background: transparent !important;
     }
 }
 

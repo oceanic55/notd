@@ -50,10 +50,15 @@ const LLMEntry = {
       });
     }
 
-    // Set up REPLY WIN buttons
+    // Set up AI modal buttons
     const aiCopyBtn = document.getElementById('ai-copy-btn');
     if (aiCopyBtn) {
       aiCopyBtn.addEventListener('click', () => this.copyAnalysisToClipboard());
+    }
+
+    const aiCloseBtn = document.getElementById('ai-close-btn');
+    if (aiCloseBtn) {
+      aiCloseBtn.addEventListener('click', () => this.closeAnalysisModal());
     }
 
     // Set up overlay click to close modal
@@ -297,7 +302,7 @@ const LLMEntry = {
         messages: [
           {
             role: 'system',
-            content: 'Your Task: Given a user\'s message, produce a structured note with the following format:\n\nOutput Format (always exactly this):\n{"place": "<city name>", "note": "<rephrased note>"}\n\n**Rules for Determining the Place:**\n\n1. If a city is directly mentioned, use that city exactly (e.g., "Paris" → "Paris")\n\n2. Use the nearest practical/logistical city relevant to the location. For landmarks, regions, mountains, venues, or corporate HQs, convert to the base/access city:\n\n**Mountains (use base/access town):**\n   - Mount Everest → Kathmandu\n   - K2 → Skardu\n   - Kilimanjaro → Moshi\n   - Mont Blanc → Chamonix\n   - Denali → Talkeetna\n   - Matterhorn → Zermatt\n   - Aconcagua → Mendoza\n   - Fuji → Fujiyoshida\n\n**Landmarks:**\n   - Eiffel Tower → Paris\n   - Statue of Liberty → New York\n   - Golden Gate Bridge → San Francisco\n   - Big Ben → London\n   - Colosseum → Rome\n   - Taj Mahal → Agra\n   - Machu Picchu → Cusco\n   - Great Wall → Beijing\n\n**Corporate HQs:**\n   - Apple HQ → Cupertino\n   - Nike → Beaverton\n   - Microsoft → Redmond\n   - Google → Mountain View\n   - Amazon → Seattle\n   - Meta/Facebook → Menlo Park\n   - Tesla → Austin\n\n3. Output ONLY the city name, with NO country/state/region\n\n4. If the location is ambiguous (e.g., "Springfield"), respond with:\n   {"place": "CLARIFY", "note": "Which city do you mean by Springfield?"}\n\n5. If the location cannot be determined, respond with:\n   {"place": "CLARIFY", "note": "I couldn\'t determine the city. Please clarify."}\n\n**Rules for Writing the Note:**\n\n1. Rephrase the user\'s message into a clear, natural sentence (or two if necessary)\n\n2. PRESERVE THE EMOTIONAL TONE AND URGENCY:\n   - If the user sounds exhausted, determined, stressed, excited, etc., KEEP THAT TONE\n   - NEVER soften intensity or change meaning\n   - "gotta sleep" → "completely exhausted and need to sleep now" NOT "need to get some rest"\n   - "hard" → "extremely difficult" NOT "challenging"\n\n3. Do NOT add new details that were not stated\n\n4. Do NOT remove key information\n\n5. Keep the note concise, direct, and human-sounding, NOT clinical or polished\n\n6. Do NOT repeat the location in the note if it\'s already in the place field\n\n7. Correct voice transcription errors intelligently (e.g., "fall spell PHO" → "pho (spelled PHO)")\n\n**URL Handling Rules:**\n\n1. Do not follow, interpret, summarize, or describe any URL\n\n2. The model must not open the link, analyze its content, or guess what it points to\n\n3. Preserve URLs exactly as they appear in the user\'s input\n\n4. Keep the full link intact and unchanged, character-for-character\n\n5. If the URL is part of the note context, include it in the Note section exactly as written\n\n6. Do NOT reformat, shorten, expand, paraphrase, or explain the link\n\n7. Do NOT replace URLs with descriptions of their destination. For example, do not change https://example.com to "the company website"\n\n8. If the user references a URL indirectly (e.g., "this link"), keep the wording and do not attempt to resolve what link is being referenced\n\n**Examples:**\n\nInput: "Mount Everest. Climbing without canister and hard. Camp 2 now, gotta sleep."\nOutput: {"place": "Kathmandu", "note": "At Camp 2 on Everest, climbing without oxygen is extremely difficult. Completely exhausted and need to sleep now."}\n\nInput: "Lunch at Nike. Find out what city they are in."\nOutput: {"place": "Beaverton", "note": "Having lunch at Nike HQ."}\n\nInput: "Meeting planned in Springfield tomorrow."\nOutput: {"place": "CLARIFY", "note": "Which city do you mean by Springfield?"}\n\nInput: "I am in Paris at four I\'m going to Montpelier and I will have a baguette right now I\'m eating croissants"\nOutput: {"place": "Paris", "note": "At 4:00. Eating croissants right now. Going to Montpellier. Will have a baguette."}\n\nInput: "having soup the soup is called fall spell PHO"\nOutput: {"place": "CLARIFY", "note": "Having soup called pho (spelled PHO). I couldn\'t determine the city. Please clarify."}\n\nInput: "I mean Osaka I just bought a bottle of mirin I don\'t know what to do with it"\nOutput: {"place": "Osaka", "note": "Just bought a bottle of mirin. Unsure what to do with it."}'
+            content: 'Your Task: Given a user\'s message, produce a structured note with the following format:\n\nOutput Format (always exactly this):\n{"place": "<city name>", "note": "<rephrased note>"}\n\n**Rules for Determining the Place:**\n\n1. **Search Strategy**: Scan the entire message for location indicators in this priority order:\n   a. Explicit city names (e.g., "Paris", "Tokyo", "New York", "Osaka", "Kyoto")\n   b. Landmarks or venues that map to cities\n   c. Mountains or natural features with known base cities\n   d. Corporate headquarters with known locations\n   e. Regional indicators that can be narrowed to a specific city\n\n2. **City Recognition**: Accept common city names without qualifiers:\n   - "Osaka" is valid (no need for "Osaka City")\n   - "Tokyo" is valid (no need for "Tokyo Metropolis")\n   - "New York" is valid (no need for "New York City")\n   - Use the commonly known name, not the official administrative name\n\n3. **City Resolution**: Use the nearest practical/logistical city relevant to the location:\n\n**Mountains (use base/access town):**\n- Mount Everest → Kathmandu\n- K2 → Skardu\n- Kilimanjaro → Moshi\n- Mont Blanc → Chamonix\n- Denali → Talkeetna\n- Matterhorn → Zermatt\n- Aconcagua → Mendoza\n- Fuji → Fujiyoshida\n\n**Landmarks:**\n- Eiffel Tower → Paris\n- Statue of Liberty → New York\n- Golden Gate Bridge → San Francisco\n- Big Ben → London\n- Colosseum → Rome\n- Taj Mahal → Agra\n- Machu Picchu → Cusco\n- Great Wall → Beijing\n- Tokyo Tower → Tokyo\n- Sydney Opera House → Sydney\n\n**Corporate HQs:**\n- Apple HQ → Cupertino\n- Nike → Beaverton\n- Microsoft → Redmond\n- Google → Mountain View\n- Amazon → Seattle\n- Meta/Facebook → Menlo Park\n- Tesla → Austin\n\n4. Output ONLY the city name, with NO country/state/region/qualifiers\n\n5. If the location is ambiguous (e.g., "Springfield"), respond with:\n{"place": "CLARIFY", "note": "Which city do you mean by Springfield?"}\n\n6. If no location can be determined after thorough analysis, respond with:\n{"place": "CLARIFY", "note": "I couldn\'t determine the city. Please clarify."}\n\n**Rules for Writing the Note:**\n\n1. **Rewrite for Clarity**: Transform the user\'s message into clear, coherent sentences while maintaining the core meaning\n\n2. **ON RETRY/REPROCESS**: If this is a reprocessing attempt (user clicked "Reprocess"), the previous result was unsatisfactory. You MUST:\n   - Rephrase the note differently than before\n   - Try alternative word choices and sentence structures\n   - Adjust the level of detail or emphasis\n   - Consider whether the tone needs to be stronger or more nuanced\n   - NEVER produce the exact same output twice\n\n3. **PRESERVE EMOTIONAL TONE AND URGENCY**:\n   - Keep the exact emotional intensity: exhausted, determined, stressed, excited, frustrated, etc.\n   - NEVER soften strong language or dilute urgency\n   - "gotta sleep" → "completely exhausted and need to sleep now" NOT "need to get some rest"\n   - "hard" → "extremely difficult" NOT "challenging"\n   - "amazing" → "absolutely amazing" NOT "nice"\n\n4. **Content Fidelity**:\n   - Do NOT add information not present in the original\n   - Do NOT remove key details or context\n   - Do NOT assume or infer unstated facts\n   - Keep all specific details (times, names, items, etc.)\n\n5. **Style**:\n   - Write naturally and conversationally, NOT formally or clinically\n   - Use complete sentences, but keep it concise\n   - Avoid corporate or polished language\n   - Sound human, not like a report\n\n6. **Location Handling**: Do NOT repeat the city name in the note if it\'s already captured in the place field\n\n7. **Transcription Error Correction**: Fix obvious voice-to-text errors intelligently:\n   - "fall spell PHO" → "pho (spelled PHO)"\n   - "four" (when clearly time) → "4:00"\n   - Homophones in wrong context\n\n8. **Temporal Information**: Preserve time references clearly:\n   - "at four" → "at 4:00"\n   - "tomorrow" → keep as "tomorrow"\n   - Maintain sequence: "right now... then... later..."\n\n**URL Handling Rules:**\n\n1. NEVER follow, open, interpret, summarize, or describe any URL\n2. NEVER analyze what a URL points to or guess its content\n3. Preserve URLs exactly as they appear, character-for-character\n4. Keep full links intact and unchanged\n5. Include URLs in the note exactly as written if they\'re part of the context\n6. Do NOT reformat, shorten, expand, or explain links\n7. Do NOT replace URLs with descriptions (e.g., "https://example.com" must NOT become "the company website")\n8. If the user references a URL indirectly (e.g., "this link"), preserve the wording without resolving it'
           },
           {
             role: 'user',
@@ -579,23 +584,50 @@ const LLMEntry = {
   },
 
   /**
-   * Show AI Analysis modal (new form-style)
+   * Close other forms before opening AI modal
+   */
+  closeOtherForms() {
+    // Close entry form
+    const entryOverlay = document.getElementById('form-overlay');
+    const entryForm = document.getElementById('entry-form');
+    if (entryOverlay) entryOverlay.classList.remove('active');
+    if (entryForm) entryForm.classList.remove('active');
+    if (window.EntryForm) window.EntryForm.isOpen = false;
+
+    // Close ABOUT form
+    const aboutOverlay = document.getElementById('combined-about-overlay');
+    const aboutForm = document.getElementById('combined-about-form');
+    if (aboutOverlay) aboutOverlay.classList.remove('active');
+    if (aboutForm) aboutForm.classList.remove('active');
+
+    // Close edit form
+    const editOverlay = document.getElementById('edit-form-overlay');
+    const editForm = document.getElementById('edit-entry-form');
+    if (editOverlay) editOverlay.classList.remove('active');
+    if (editForm) editForm.classList.remove('active');
+  },
+
+  /**
+   * Show AI Analysis modal (full-screen below navigation)
    */
   showAnalysisModal(result) {
+    // Close any other open forms first
+    this.closeOtherForms();
+    
     const modalOverlay = document.getElementById('ai-analysis-modal-overlay');
+    const modal = document.getElementById('ai-analysis-modal');
     const content = document.getElementById('ai-analysis-content');
-    const formOverlay = document.getElementById('form-overlay');
 
     if (content) {
       // Store only the analysis text for copying (without tokens/model info)
       this.currentAnalysis = result.analysis;
       
-      // Display analysis text (plain text, no HTML formatting)
+      // Display analysis text only (no token usage or model info)
       content.textContent = result.analysis;
     }
     
     if (modalOverlay) modalOverlay.classList.add('active');
-    if (formOverlay) formOverlay.classList.add('active');
+    if (modal) modal.classList.add('active');
   },
 
   /**
@@ -625,10 +657,10 @@ const LLMEntry = {
    */
   closeAnalysisModal() {
     const modalOverlay = document.getElementById('ai-analysis-modal-overlay');
-    const formOverlay = document.getElementById('form-overlay');
+    const modal = document.getElementById('ai-analysis-modal');
 
     if (modalOverlay) modalOverlay.classList.remove('active');
-    if (formOverlay) formOverlay.classList.remove('active');
+    if (modal) modal.classList.remove('active');
     this.currentAnalysis = null;
   }
 };

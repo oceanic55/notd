@@ -1,34 +1,5 @@
-/* Theme variables */
-:root[data-theme="dark"] {
-    --bg-primary: #333;
-    --bg-secondary: #2a2a2a;
-    --bg-tertiary: #444;
-    --bg-quaternary: #555;
-    --bg-message: #1a1a1a;
-    --bg-input: #555;
-    --bg-input-focus: #666;
-    --bg-preview: #3a3a3a;
-    --bg-highlight: #3a3a3a;
-    
-    --text-primary: white;
-    --text-secondary: #aaa;
-    --text-tertiary: #888;
-    --text-muted: #666;
-    
-    --border-primary: #555;
-    --border-secondary: #666;
-    --border-tertiary: #777;
-    --border-quaternary: #444;
-    
-    --accent-primary: #FF5100;
-    --accent-secondary: #0066FF;
-    --accent-hover: #0052CC;
-    --accent-delete: #ef4444;
-    --accent-delete-hover: #dc2626;
-    --accent-highlight: #ffd700;
-}
-
-:root[data-theme="light"] {
+/* CSS Variables */
+:root {
     --bg-primary: #f5f5f5;
     --bg-secondary: #ffffff;
     --bg-tertiary: #e8e8e8;
@@ -52,14 +23,12 @@
     --accent-primary: #FF5100;
     --accent-secondary: #0066FF;
     --accent-hover: #0052CC;
-    --accent-delete: #ef4444;
-    --accent-delete-hover: #dc2626;
+    --accent-delete: #FF5100;
+    --accent-delete-hover: #E04600;
     --accent-highlight: #ffd700;
 }
 
-/* Theme toggle button removed from UI */
-
-/* Apply theme variables to existing styles */
+/* Apply CSS variables to existing styles */
 body {
     background-color: var(--bg-primary);
     color: var(--text-primary);

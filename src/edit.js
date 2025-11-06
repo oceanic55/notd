@@ -88,10 +88,18 @@ const EditMode = {
           e.preventDefault();
           e.stopPropagation();
           self.handleLLMReprocess();
+        } else if (e.target.id === 'edit-delete-btn' || e.target.closest('#edit-delete-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.handleDelete();
         } else if (e.target.id === 'edit-save-btn' || e.target.closest('#edit-save-btn')) {
           e.preventDefault();
           e.stopPropagation();
           self.handleSave();
+        } else if (e.target.id === 'edit-close-btn' || e.target.closest('#edit-close-btn')) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.closeEditDialog();
         }
       });
       
@@ -104,6 +112,9 @@ const EditMode = {
       }
     }
 
+    // Close any other open forms first
+    this.closeOtherForms();
+    
     // Show form with new styling
     overlay.classList.add('active');
     form.classList.add('active');
@@ -210,6 +221,62 @@ const EditMode = {
   },
 
   /**
+   * Delete the currently edited entry
+   */
+  handleDelete() {
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this entry?')) {
+      return;
+    }
+
+    // Remove entry from storage
+    const entries = StorageManager.getEntries();
+    if (this.editingIndex !== null && this.editingIndex >= 0 && this.editingIndex < entries.length) {
+      entries.splice(this.editingIndex, 1);
+      StorageManager.saveToLocalStorage();
+      DisplayManager.renderEntries(entries);
+      
+      console.log(`Deleted entry at index ${this.editingIndex}. Remaining entries:`, entries.length);
+      
+      // Visual feedback - remind user to save
+      const saveBtn = document.getElementById('save-btn-header');
+      if (saveBtn) {
+        saveBtn.style.borderColor = '#FF5100';
+        setTimeout(() => {
+          saveBtn.style.borderColor = '';
+        }, 2000);
+      }
+    }
+
+    // Close dialog (this will also exit edit mode)
+    this.closeEditDialog();
+  },
+
+  /**
+   * Close other forms before opening edit form
+   */
+  closeOtherForms() {
+    // Close entry form
+    const entryOverlay = document.getElementById('form-overlay');
+    const entryForm = document.getElementById('entry-form');
+    if (entryOverlay) entryOverlay.classList.remove('active');
+    if (entryForm) entryForm.classList.remove('active');
+    if (window.EntryForm) window.EntryForm.isOpen = false;
+
+    // Close ABOUT form
+    const aboutOverlay = document.getElementById('combined-about-overlay');
+    const aboutForm = document.getElementById('combined-about-form');
+    if (aboutOverlay) aboutOverlay.classList.remove('active');
+    if (aboutForm) aboutForm.classList.remove('active');
+
+    // Close AI analysis modal
+    const aiOverlay = document.getElementById('ai-analysis-modal-overlay');
+    const aiModal = document.getElementById('ai-analysis-modal');
+    if (aiOverlay) aiOverlay.classList.remove('active');
+    if (aiModal) aiModal.classList.remove('active');
+  },
+
+  /**
    * Close edit dialog and exit edit mode
    */
   closeEditDialog() {
@@ -233,17 +300,25 @@ const EditMode = {
 
 // Helper function to auto-expand textarea
 function autoExpandTextarea(textarea) {
-  textarea.style.height = 'auto';
+  // Get the computed style first
+  const computedStyle = window.getComputedStyle(textarea);
+  const minHeight = parseInt(computedStyle.minHeight) || 210;
+  const maxHeight = parseInt(computedStyle.maxHeight);
+  
+  // Temporarily set to min height to get accurate scrollHeight
+  textarea.style.height = minHeight + 'px';
   textarea.style.overflowY = 'hidden';
   
-  const computedStyle = window.getComputedStyle(textarea);
-  const maxHeight = parseInt(computedStyle.maxHeight);
-  const newHeight = textarea.scrollHeight;
+  // Calculate the content height
+  const scrollHeight = textarea.scrollHeight;
+  const newHeight = Math.max(scrollHeight, minHeight);
   
-  if (newHeight >= maxHeight) {
+  if (maxHeight && newHeight >= maxHeight) {
+    // At max height, enable scrolling
     textarea.style.height = maxHeight + 'px';
     textarea.style.overflowY = 'auto';
   } else {
+    // Below max height, expand without scrolling
     textarea.style.height = newHeight + 'px';
     textarea.style.overflowY = 'hidden';
   }

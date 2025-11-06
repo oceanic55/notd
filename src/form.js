@@ -43,6 +43,16 @@ const EntryForm = {
             });
         }
 
+        // Set up Close button
+        const closeBtn = document.getElementById('entry-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.closeForm();
+            });
+        }
+
         // Set up auto-expand for textareas
         this.setupTextareaAutoExpand();
 
@@ -55,6 +65,9 @@ const EntryForm = {
     },
 
     openForm(userEvent = null) {
+        // Close any other open forms first
+        this.closeOtherForms();
+        
         const overlay = document.getElementById('form-overlay');
         const form = document.getElementById('entry-form');
         
@@ -289,19 +302,41 @@ const EntryForm = {
         }
     },
 
+    closeOtherForms() {
+        // Close ABOUT form
+        const aboutOverlay = document.getElementById('combined-about-overlay');
+        const aboutForm = document.getElementById('combined-about-form');
+        if (aboutOverlay) aboutOverlay.classList.remove('active');
+        if (aboutForm) aboutForm.classList.remove('active');
+
+        // Close edit form
+        const editOverlay = document.getElementById('edit-form-overlay');
+        const editForm = document.getElementById('edit-entry-form');
+        if (editOverlay) editOverlay.classList.remove('active');
+        if (editForm) editForm.classList.remove('active');
+
+        // Close AI analysis modal
+        const aiOverlay = document.getElementById('ai-analysis-modal-overlay');
+        const aiModal = document.getElementById('ai-analysis-modal');
+        if (aiOverlay) aiOverlay.classList.remove('active');
+        if (aiModal) aiModal.classList.remove('active');
+    },
+
     autoExpandTextarea(textarea) {
-        // Reset height to calculate scrollHeight
-        textarea.style.height = 'auto';
-        textarea.style.overflowY = 'hidden';
-        
-        // Get the max height from CSS
+        // Get the computed style first
         const computedStyle = window.getComputedStyle(textarea);
+        const minHeight = parseInt(computedStyle.minHeight) || 60;
         const maxHeight = parseInt(computedStyle.maxHeight);
         
-        // Set height based on content
-        const newHeight = textarea.scrollHeight;
+        // Temporarily set to min height to get accurate scrollHeight
+        textarea.style.height = minHeight + 'px';
+        textarea.style.overflowY = 'hidden';
         
-        if (newHeight >= maxHeight) {
+        // Calculate the content height
+        const scrollHeight = textarea.scrollHeight;
+        const newHeight = Math.max(scrollHeight, minHeight);
+        
+        if (maxHeight && newHeight >= maxHeight) {
             // At max height, enable scrolling
             textarea.style.height = maxHeight + 'px';
             textarea.style.overflowY = 'auto';

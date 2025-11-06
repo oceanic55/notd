@@ -28,13 +28,7 @@
         <div class="toggle-container">
             <div class="sliding-pill full" id="pill"></div>
             <button id="fullViewBtn" class="active">
-                ENTER
-                <ul class="dropdown-list" id="dropdownList">
-                    <li data-action="save">SAVE</li>
-                    <li data-action="edit">EDIT</li>
-                    <li data-action="copy">COPY</li>
-                    <li data-action="ai-analyze">AI</li>
-                </ul>
+                LLM
             </button>
             <button id="aboutBtn" class="inactive">
                 ABOUT
@@ -59,6 +53,11 @@
         <!-- Entry Form (New Style) -->
         <div id="entry-form">
             <form>
+                <div class="form-button-group">
+                    <button type="button" class="form-action-btn" id="process-btn">Process</button>
+                    <button type="button" class="form-action-btn" id="save-entry-btn">Save</button>
+                    <button type="button" class="form-action-btn" id="entry-close-btn">Close</button>
+                </div>
                 <div class="form-group-entry">
                     <label for="entry-text-input">ENTER TEXT</label>
                     <textarea id="entry-text-input" name="entry-text" class="entry-field"></textarea>
@@ -67,10 +66,6 @@
                     <label for="process-text-input">PROCESSED</label>
                     <textarea id="process-text-input" name="process-text" class="process-field"></textarea>
                 </div>
-                <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="process-btn">Process</button>
-                    <button type="button" class="form-action-btn" id="save-entry-btn">Save</button>
-                </div>
             </form>
         </div>
     </div>
@@ -78,11 +73,14 @@
     <!-- AI Analysis Modal -->
     <div id="ai-analysis-modal-overlay">
         <div id="ai-analysis-modal">
-            <div id="ai-analysis-content"></div>
-            <div id="ai-analysis-header">
-                <button id="ai-essay-btn">Essay</button>
-                <button id="ai-copy-btn">Copy</button>
+            <!-- Button row at top -->
+            <div class="ai-button-row">
+                <button type="button" class="ai-action-btn" id="ai-essay-btn">ESSAY</button>
+                <button type="button" class="ai-action-btn" id="ai-copy-btn">COPY</button>
+                <button type="button" class="ai-action-btn" id="ai-close-btn">CLOSE</button>
             </div>
+            <!-- Analysis content -->
+            <div id="ai-analysis-content"></div>
         </div>
     </div>
 
@@ -92,19 +90,20 @@
     <div id="combined-about-overlay">
         <div id="combined-about-form">
             <form>
-                <!-- Load, API and Close Buttons Section -->
+                <!-- Load and API Buttons Section -->
                 <div class="form-group-entry">
                     <div class="button-row">
                         <button type="button" class="form-action-btn load-btn" id="combined-load-btn">LOAD</button>
                         <button type="button" class="form-action-btn load-btn" id="combined-api-btn">API</button>
-                        <button type="button" class="form-action-btn load-btn" id="combined-close-btn">CLOSE</button>
+                        <button type="button" class="form-action-btn load-btn" id="combined-save-btn">SAVE</button>
+                        <button type="button" class="form-action-btn load-btn" id="combined-copy-btn">COPY</button>
                     </div>
                 </div>
                 
                 <!-- API Entry Overlay (hidden by default) -->
                 <div class="api-entry-overlay" id="api-entry-overlay" style="display: none;">
                     <div class="form-group-entry">
-                        <label for="combined-api-key-input">API KEY</label>
+                        <label for="combined-api-key-input">Enter API here</label>
                         <input type="text" id="combined-api-key-input" class="entry-field" />
                     </div>
                     <div class="form-button-group" style="position: relative; margin-top: 20px;">
@@ -120,7 +119,7 @@
                 <!-- About Section -->
                 <div class="form-group-entry" id="about-section">
                     <div id="combined-about-content" class="about-content">
-                        <div class="about-item">App Version: <span id="combined-app-version">4.2.0</span></div>
+                        <div class="about-item">App Version: <span id="combined-app-version">4.3.0</span></div>
                         <div class="about-item">JSON Version: <span id="combined-json-version">Not loaded</span></div>
                         <div class="about-item">Entries: <span id="combined-entries-count">0</span></div>
                         <div class="about-item">File: <span id="combined-current-filename">None</span></div>
@@ -152,8 +151,10 @@
                     <textarea id="edit-note-input" class="entry-field"></textarea>
                 </div>
                 <div class="form-button-group">
-                    <button type="button" class="form-action-btn" id="edit-llm-reprocess-btn">Reprocess</button>
+                    <button type="button" class="form-action-btn" id="edit-llm-reprocess-btn">Rewrite</button>
+                    <button type="button" class="form-action-btn" id="edit-delete-btn">Delete</button>
                     <button type="button" class="form-action-btn" id="edit-save-btn">Save</button>
+                    <button type="button" class="form-action-btn" id="edit-close-btn">Close</button>
                 </div>
             </form>
         </div>
@@ -168,6 +169,7 @@
     <script src="src/llm-settings.js"></script>
     <script src="src/about.js"></script>
     <script src="src/combined-about.js"></script>
+    <script src="src/essay-style-examples.js"></script>
     <script src="src/essay.js"></script>
     <script src="src/swipe-delete.js"></script>
     <script src="src/diary.js?t=20250126f"></script>

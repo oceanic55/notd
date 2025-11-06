@@ -14,10 +14,16 @@ const CombinedAboutForm = {
             apiBtn.addEventListener('click', () => this.showAPIEntry());
         }
 
-        // Set up Close button
-        const closeBtn = document.getElementById('combined-close-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeCombinedAbout());
+        // Set up SAVE button
+        const saveBtn = document.getElementById('combined-save-btn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', () => this.handleSave());
+        }
+
+        // Set up COPY button
+        const copyBtn = document.getElementById('combined-copy-btn');
+        if (copyBtn) {
+            copyBtn.addEventListener('click', () => this.handleCopy());
         }
 
         // Set up API entry close button
@@ -89,17 +95,14 @@ const CombinedAboutForm = {
             localStorage.removeItem('diary_filename');
             localStorage.removeItem('diary_timestamp');
             
-            // Clear footer timestamp
-            StorageManager.clearFooterTimestamp();
-            
             // Update the about info
             this.updateAboutInfo();
-        } else {
-            // Trigger file load
-            const loadFile = document.getElementById('load-file');
-            if (loadFile) {
-                loadFile.click();
-            }
+        }
+        
+        // Always trigger file load (whether we just unloaded or not)
+        const loadFile = document.getElementById('load-file');
+        if (loadFile) {
+            loadFile.click();
         }
     },
 
@@ -147,6 +150,55 @@ const CombinedAboutForm = {
             // Show other sections
             if (llmSection) llmSection.style.display = 'block';
             if (aboutSection) aboutSection.style.display = 'block';
+        }
+    },
+
+    handleSave() {
+        // Trigger SAVE functionality
+        if (window.StorageManager) {
+            StorageManager.saveToFile();
+        }
+    },
+
+    async handleCopy() {
+        // Trigger COPY functionality with proper button reference
+        const entries = window.StorageManager ? window.StorageManager.getEntries() : [];
+
+        if (!entries || entries.length === 0) {
+            alert('No entries to copy. Please load a file first.');
+            return;
+        }
+
+        // Convert entries to text format with timestamps
+        const entriesText = entries.map(entry => {
+            const timestamp = entry.timestamp || '';
+            const time = entry.time || '';
+            const place = entry.sender || 'Unknown';
+            const note = entry.note || '';
+            return `${timestamp} ${time} - ${place}: ${note}`;
+        }).join('\n');
+
+        try {
+            // Copy to clipboard
+            await navigator.clipboard.writeText(entriesText);
+            
+            // Visual feedback on the combined-copy-btn
+            const copyBtn = document.getElementById('combined-copy-btn');
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'COPIED!';
+                copyBtn.style.backgroundColor = '#10b981';
+                copyBtn.style.borderColor = '#10b981';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.backgroundColor = '';
+                    copyBtn.style.borderColor = '';
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Failed to copy to clipboard:', error);
+            alert('Failed to copy to clipboard. Please try again.');
         }
     },
 

@@ -1,7 +1,7 @@
 /* ============================================
    AI ANALYSIS MODAL
    
-   Styled to match the form standards
+   Full screen overlay below navigation (like ABOUT form)
    ============================================ */
 
 #ai-analysis-modal-overlay {
@@ -11,90 +11,99 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    z-index: 99; /* Behind navigation (z-index: 100) */
+    background-color: #f3f6f4;
     pointer-events: auto;
+    overflow-y: auto;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+#ai-analysis-modal-overlay::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 #ai-analysis-modal-overlay.active {
-    display: flex;
+    display: block;
 }
 
 #ai-analysis-modal {
-    position: relative;
-    background-color: #e8e8e8;
-    padding: 30px 30px 5px 30px;
+    display: none;
     width: 100%;
-    max-width: 480px; /* 20% wider than original 400px */
-    height: 80vh;
-    pointer-events: auto;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    /* Position content below navigation - nav height + margin */
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+    box-sizing: border-box;
+    background-color: #f3f6f4;
+}
+
+#ai-analysis-modal.active {
+    display: block;
+}
+
+/* Button row at top */
+.ai-button-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.ai-action-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    letter-spacing: -1px;
+    padding: 15px 30px;
+    background-color: rgba(251, 130, 1, 0.2);
+    border: none;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-align: left;
+}
+
+.ai-action-btn:hover {
+    background-color: #ff7701;
+    color: #e8e8e8;
+}
+
+/* Mobile styling - 50% opacity orange background since hover doesn't work */
+@media (max-width: 768px), (hover: none) {
+    .ai-action-btn {
+        background-color: rgba(251, 130, 1, 0.5);
+        color: #000;
+    }
+    
+    .ai-action-btn:hover {
+        background-color: rgba(251, 130, 1, 0.5);
+        color: #000;
+    }
 }
 
 #ai-analysis-content {
     background-color: transparent;
     color: #000;
-    padding: 0 0 15px 0;
+    padding: 0;
     border: none;
-    border-bottom: 0.5px solid #000;
     font-family: 'Courier New', monospace;
     font-size: 16px;
     line-height: 1.5;
     white-space: pre-wrap;
     word-wrap: break-word;
-    overflow-y: auto;
-    height: calc(100% - 60px);
-    margin-bottom: 15px;
-    /* Hide scrollbar but keep scrolling functionality */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    margin-bottom: 30px;
 }
 
-/* Hide scrollbar for WebKit browsers */
-#ai-analysis-content::-webkit-scrollbar {
-    display: none;
-}
-
-#ai-analysis-header {
-    display: flex;
-    gap: 15px;
-    position: absolute;
-    bottom: 4px;
-    left: 0;
-    right: 0;
-}
-
-#ai-essay-btn,
-#ai-copy-btn {
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    letter-spacing: -1px;
-    padding: 15px 30px;
-    background-color: transparent;
-    border: 0px solid #000;
-    color: #000;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    flex: 1;
-}
-
-#ai-essay-btn:hover,
-#ai-copy-btn:hover {
-    background-color: #ff7701;
-    color: #e8e8e8;
-}
-
-/* Mobile responsive */
-@media (max-width: 500px) {
+/* Mobile responsive - 95% viewport width */
+@media (max-width: 768px) {
     #ai-analysis-modal {
-        width: calc(100% - 40px);
-        max-width: calc(100% - 40px);
-        padding: 20px 20px 5px 20px;
-    }
-
-    #ai-analysis-content {
-        font-size: 14px;
-        max-height: calc(80vh - 100px);
+        width: 95vw;
+        max-width: 95vw;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 90px; /* Adjust for mobile nav height */
     }
 }

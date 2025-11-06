@@ -7,26 +7,34 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    z-index: 99; /* Behind navigation (z-index: 100) */
+    background-color: #e8e8e8;
     pointer-events: auto;
+    overflow-y: auto;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+#form-overlay::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 #form-overlay.active {
-    display: flex;
+    display: block;
 }
 
 #entry-form {
     display: none;
     width: 100%;
-    max-width: 400px;
-    height: calc(var(--vh, 1vh) * 80);
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    /* Position content below navigation - nav height + margin */
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+    box-sizing: border-box;
     background-color: #e8e8e8;
-    padding: 30px 30px 5px 30px;
-    position: relative;
-    pointer-events: auto;
 }
 
 #entry-form.active {
@@ -36,6 +44,17 @@
 #entry-form form {
     height: 100%;
     position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Entry form button group at top */
+#entry-form .form-button-group {
+    position: relative;
+    margin-bottom: 30px;
+    bottom: auto;
+    left: auto;
+    right: auto;
 }
 
 /* ENTRY field group */
@@ -67,6 +86,7 @@
     font-family: 'Courier New', monospace;
     font-size: 16px;
     padding: 0;
+    padding-bottom: 10px;
     outline: none;
     color: #000;
     resize: none;
@@ -80,6 +100,24 @@
 
 .entry-field:focus {
     border-bottom: 0.7px solid #fb8201;
+}
+
+/* Make the main text entry field in ENTER form expand */
+#entry-form .form-group-entry:has(#entry-text-input) {
+    display: flex;
+    flex-direction: column;
+}
+
+#entry-form #entry-text-input {
+    min-height: 60px;
+    height: 60px;
+    max-height: calc(60vh - 200px);
+    overflow-y: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    resize: none;
+    padding-bottom: 10px;
+    box-sizing: border-box;
 }
 
 /* PROCESS field group */
@@ -128,6 +166,8 @@
     bottom: 4px;
     left: 0;
     right: 0;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Edit form button group - use flex positioning instead of absolute */
@@ -137,6 +177,8 @@
     bottom: auto;
     left: auto;
     right: auto;
+    justify-content: center;
+    align-items: center;
 }
 
 .form-action-btn {
@@ -144,17 +186,48 @@
     font-size: 16px;
     letter-spacing: -1px;
     padding: 15px 30px;
-    background-color: transparent;
+    background-color: rgba(251, 130, 1, 0.05);
     border: 0px solid #000;
     color: #000;
     cursor: pointer;
     transition: all 0.3s ease;
     flex: 1;
+    min-width: 0;
+    text-align: center;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .form-action-btn:hover {
     background-color: #ff7701;
     color: #e8e8e8;
+}
+
+/* REWRITE button specific styling */
+#edit-llm-reprocess-btn {
+    background-color: rgba(251, 130, 1, 0.2);
+    border: none;
+    color: #000;
+}
+
+#edit-llm-reprocess-btn:hover {
+    background-color: #ff7701;
+    color: #e8e8e8;
+}
+
+/* DELETE button specific styling */
+#edit-delete-btn {
+    background-color: #ef4444;
+    color: white;
+    flex: 1;
+    min-width: 0;
+}
+
+#edit-delete-btn:hover {
+    background-color: #dc2626;
+    color: white;
 }
 
 /* Mobile styling for form action buttons */
@@ -178,26 +251,34 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1001;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    z-index: 99; /* Behind navigation (z-index: 100) */
+    background-color: #e8e8e8;
     pointer-events: auto;
+    overflow-y: auto;
+    /* Hide scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+#edit-form-overlay::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
 }
 
 #edit-form-overlay.active {
-    display: flex;
+    display: block;
 }
 
 #edit-entry-form {
     display: none;
     width: 100%;
-    max-width: 400px;
-    height: calc(var(--vh, 1vh) * 80);
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    /* Position content below navigation - nav height + margin */
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+    box-sizing: border-box;
     background-color: #e8e8e8;
-    padding: 30px 30px 5px 30px;
-    position: relative;
-    pointer-events: auto;
 }
 
 #edit-entry-form.active {
@@ -231,30 +312,37 @@
 
 /* Specific styling for NOTE textarea in edit form */
 #edit-entry-form #edit-note-input {
-    height: auto;
-    min-height: 24px;
-    overflow-y: auto;
+    min-height: 210px;
+    height: 210px;
+    max-height: calc(60vh - 200px);
+    overflow-y: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+}
+
+#edit-entry-form .entry-field {
+    padding-bottom: 10px;
+    box-sizing: border-box;
 }
 
 #edit-entry-form .entry-field:focus {
     border-bottom: 0.7px solid #fb8201;
 }
 
-/* Make the NOTE field group expand to fill available space */
+/* Make the NOTE field group expand naturally */
 #edit-entry-form .form-group-entry:has(#edit-note-input) {
-    flex: 1;
     display: flex;
     flex-direction: column;
 }
 
-/* Edit form textarea specific - fill available space */
+/* Edit form textarea specific - natural expansion */
 #edit-entry-form textarea.entry-field {
-    flex: 1;
-    min-height: 100px;
-    height: auto;
-    overflow-y: auto;
+    min-height: 210px;
+    height: 210px;
+    max-height: calc(60vh - 200px);
+    overflow-y: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
     resize: none;
@@ -272,7 +360,7 @@
 
 
 
-/* Combined About Form */
+/* Combined About Form - Full screen overlay behind navigation */
 #combined-about-overlay {
     display: none;
     position: fixed;
@@ -280,25 +368,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    pointer-events: auto;
-}
-
-#combined-about-overlay.active {
-    display: flex;
-}
-
-#combined-about-form {
-    display: none;
-    width: 100%;
-    max-width: 600px;
-    height: calc(var(--vh, 1vh) * 80);
-    background-color: #e8e8e8;
-    padding: 30px 30px 5px 30px;
-    position: relative;
+    z-index: 99; /* Behind navigation (z-index: 100) */
+    background-color: #f3f6f4;
     pointer-events: auto;
     overflow-y: auto;
     /* Hide scrollbar */
@@ -306,9 +377,28 @@
     -ms-overflow-style: none; /* IE and Edge */
 }
 
-#combined-about-form::-webkit-scrollbar {
+#combined-about-overlay::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
 }
+
+#combined-about-overlay.active {
+    display: block;
+}
+
+#combined-about-form {
+    display: none;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+    /* Position content below navigation - nav height + margin */
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+    box-sizing: border-box;
+    background-color: #f3f6f4;
+}
+
+
 
 #combined-about-form.active {
     display: block;
@@ -331,7 +421,7 @@
     font-size: 16px;
     letter-spacing: -1px;
     padding: 15px 30px;
-    background-color: transparent;
+    background-color: rgba(251, 130, 1, 0.2);
     border: none;
     color: #000;
     cursor: pointer;
@@ -365,7 +455,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #e8e8e8;
+    background-color: #f3f6f4;
     padding: 30px;
     z-index: 10;
     display: flex;
@@ -400,16 +490,16 @@
 
 .llm-item {
     padding: 15px 0;
-    border-bottom: 0.5px solid #000;
     cursor: pointer;
     font-family: 'Courier New', monospace;
     font-size: 16px;
     color: #000;
+    background-color: rgba(251, 130, 1, 0.05);
     transition: background-color 0.2s;
 }
 
 .llm-item:hover {
-    background-color: rgba(255, 119, 1, 0.1);
+    background-color: rgba(251, 130, 1, 0.7);
 }
 
 .llm-item.selected {
@@ -438,4 +528,17 @@
 
 #combined-about-form .entry-field {
     margin-bottom: 10px;
+}
+
+/* Mobile responsive - 95% viewport width */
+@media (max-width: 768px) {
+    #entry-form,
+    #edit-entry-form,
+    #combined-about-form {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 0 auto;
+        padding: 20px;
+        padding-top: 90px; /* Adjust for mobile nav height */
+    }
 }

@@ -8,46 +8,43 @@
 
 ## Changelog
 
+v4.4.1
+- Updated changelog management process to retrieve version from git commit messages
+- Added automatic system time retrieval using date command for accurate timestamps
+- Removed manual version number prompting from changelog workflow
+- Added "Common Issues" section to guidelines documenting system time and version retrieval
+- Enhanced guidelines with specific commands for version and timestamp extraction
+
+11.06::16:26
+
+v4.4.0
+- Added SAVE button to About form for saving current diary data to JSON file
+- Added COPY button to About form for copying all diary entries to clipboard
+- Modified LLM prompt in llm.js for improved analysis output
+- Reorganized development guidelines from DEVELOPMENT.md to data/guidelines.md
+- Updated changelog format requirements to use bullet lists (5-10 bullets minimum/maximum)
+- Created structured guidelines for changelog management in data/guidelines.md
+
+11.06::16:24
+
+v4.3.0
+- Added 50% opacity orange backgrounds for mobile form buttons (form.css)
+- Fixed edit form button positioning using flexbox instead of absolute positioning
+- Enhanced navigation.js with closeAllForms() method for better state management
+- Added keyboard navigation support (ArrowLeft/ArrowRight) for toggle buttons
+- Improved logo button click handling with touch event support
+
+11.06::14:45
+
 v4.2.0
 Major UI/UX improvements to the About form and cross-browser compatibility enhancements:
 
-**About Form Redesign:**
-- Replaced "Overview" button with "ABOUT" button for clearer navigation
-- Redesigned About form with LOAD, API, and CLOSE buttons in a horizontal row
-- Added dedicated API entry overlay that appears above all other content when API button is clicked
-- API overlay features centered layout with responsive design for mobile devices
-- On mobile (≤768px), API keys display as "...XXXX" (last 4 digits) for better UX
-- API field expands to full key when user starts editing
-- Removed "SELECT MODEL" label and centered all remaining labels for cleaner appearance
-- LLM model list now displays all 5 Groq models without scrolling: Qwen 3 32B, Compound Mini, Llama 3.1 8B Instant, Llama 3.3 70B Versatile, Kimi K2 Instruct
-- Removed border lines from About section for more compact display
-- Added automatic form closure when JSON files are loaded via LOAD button
-
-**Mobile & Touch Improvements:**
-- Added 50% opacity orange background (#fb8201) for all buttons on mobile/touch devices since hover effects don't work
-- Improved button visibility and touch feedback across all interactive elements
-- Enhanced responsive design for API entry field with proper centering and sizing
-
-**Edit Mode Enhancements:**
-- Fixed NOTE field expansion in edit mode - now uses flexbox layout to fill all available space between PLACE field and buttons
-- Eliminated complex autosizing calculations in favor of reliable CSS flexbox solution
-- NOTE field automatically adapts to any screen size and form height
-- Improved cross-browser viewport height (vh) compatibility between Safari and Firefox
-- Added viewport-fix.js for consistent behavior across all browsers
-- Edit mode info window ("EDIT MODE ACTIVE...") removed for cleaner UX
-- About form automatically closes when edit mode is activated
-
-**Technical Improvements:**
-- Implemented CSS custom properties (--vh) for consistent viewport height handling
-- Added comprehensive fallbacks for older browsers
-- Enhanced mobile browser compatibility with proper viewport scaling
-- Optimized performance with requestAnimationFrame for viewport updates
-- Improved event handling and form state management
+Redesigned About form with LOAD/API/CLOSE buttons and dedicated API overlay. Added mobile touch feedback with orange backgrounds. Fixed NOTE field expansion in edit mode using flexbox. Improved cross-browser viewport compatibility with viewport-fix.js.
 
 01.06::12:10
 
 v4.0.1
-Fixed click-outside-to-close functionality for all forms and modals. Updated CSS pointer-events from 'none' to 'auto' on overlays and added event.stopPropagation() to form containers to prevent accidental closures. Enhanced mobile browser compatibility for automatic text field focus when opening entry form - focus now triggers within the same user event context with multiple fallback mechanisms including click events and touch handlers. Added mobile-specific CSS properties for better text selection behavior.
+Fixed click-outside-to-close for all forms. Enhanced mobile text field focus with multiple fallback mechanisms.
 
 11.05::17:30
 
@@ -71,7 +68,7 @@ Added light/dark theme switcher with persistent preference storage. New toggle b
 
 
 Externalized the essay style examples from 
-essay.js into a separate src/essay-style-examples.txt file. Added a loadStyleExamples() method that fetches and caches the content, with preloading on initialization. This lets you maintain a long reference text for the LLM without cluttering the code.
+essay.js into a separate src/essay-style-examples.js file. The style examples are loaded via a script tag and exposed as a window global, avoiding CORS issues when running from file:// protocol. This lets you maintain a long reference text for the LLM without cluttering the code.
 New Prompt.
 
 10.31::09:50

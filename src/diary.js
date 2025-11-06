@@ -43,10 +43,7 @@ const StorageManager = {
                 this.currentEntries = JSON.parse(savedEntries);
                 this.currentFileName = savedFileName || null;
 
-                // Restore timestamp in footer if available
-                if (savedTimestamp) {
-                    this.updateFooterTimestamp(savedTimestamp);
-                }
+                // Timestamp restored to localStorage
 
                 return this.currentEntries;
             }
@@ -93,12 +90,10 @@ const StorageManager = {
             this.currentFileName = file.name;
             this.currentEntries = entries;
 
-            // Update footer with timestamp if available
+            // Save to localStorage with timestamp if available
             if (lastSaved) {
-                this.updateFooterTimestamp(lastSaved);
                 this.saveToLocalStorage(lastSaved); // Save to localStorage with timestamp
             } else {
-                this.clearFooterTimestamp();
                 this.saveToLocalStorage(); // Save to localStorage without timestamp
             }
 
@@ -110,67 +105,7 @@ const StorageManager = {
         }
     },
 
-    /**
-     * Update footer with last saved timestamp
-     * @param {string} timestamp - Timestamp in MM-DD-HH-MM format
-     */
-    updateFooterTimestamp(timestamp) {
-        const footer = document.getElementById('footer');
-        if (!footer) {
-            console.warn('Footer element not found');
-            return;
-        }
 
-        // Parse timestamp
-        const [month, day, hours, minutes] = timestamp.split('-');
-        const formattedTime = `${month}.${day}::${hours}:${minutes}`;
-
-        // Check if timestamp line already exists
-        let timestampLine = footer.querySelector('.footer-timestamp-line');
-        
-        if (!timestampLine) {
-            // Create new timestamp line
-            timestampLine = document.createElement('div');
-            timestampLine.className = 'footer-line footer-timestamp-line';
-            
-            const timestampSpan = document.createElement('span');
-            timestampSpan.className = 'last-saved';
-            timestampSpan.style.color = '#888';
-            timestampSpan.style.fontSize = '11px';
-            timestampSpan.textContent = formattedTime;
-            
-            timestampLine.appendChild(timestampSpan);
-            
-            // Insert before the last footer-line (dropdown)
-            const lastLine = footer.querySelector('.footer-line:last-child');
-            if (lastLine) {
-                footer.insertBefore(timestampLine, lastLine);
-            } else {
-                footer.appendChild(timestampLine);
-            }
-        } else {
-            // Update existing timestamp
-            const timestampSpan = timestampLine.querySelector('.last-saved');
-            if (timestampSpan) {
-                timestampSpan.textContent = formattedTime;
-            } else {
-                console.error('Timestamp line exists but span not found');
-            }
-        }
-    },
-
-    /**
-     * Clear footer timestamp
-     */
-    clearFooterTimestamp() {
-        const footer = document.getElementById('footer');
-        if (!footer) return;
-
-        const timestampLine = footer.querySelector('.footer-timestamp-line');
-        if (timestampLine) {
-            timestampLine.remove();
-        }
-    },
 
     /**
      * Get current entries
@@ -228,9 +163,6 @@ const StorageManager = {
 
                 console.log(`Saved ${this.currentEntries.length} entries to file`);
 
-                // Update footer with new timestamp
-                this.updateFooterTimestamp(timestamp);
-
                 // Save to localStorage with timestamp
                 this.saveToLocalStorage(timestamp);
 
@@ -254,9 +186,6 @@ const StorageManager = {
                 URL.revokeObjectURL(url);
 
                 console.log(`Downloaded ${this.currentEntries.length} entries`);
-
-                // Update footer with new timestamp
-                this.updateFooterTimestamp(timestamp);
 
                 // Save to localStorage with timestamp
                 this.saveToLocalStorage(timestamp);
@@ -383,13 +312,13 @@ const DisplayManager = {
         messageDiv.appendChild(leftColumn);
         messageDiv.appendChild(rightColumn);
 
-        // Create delete button
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-button';
-        deleteBtn.textContent = 'DELETE';
+        // Create edit button (formerly delete button)
+        const editBtn = document.createElement('button');
+        editBtn.className = 'delete-button'; // Keep same class for styling
+        editBtn.textContent = 'EDIT';
 
         wrapper.appendChild(messageDiv);
-        wrapper.appendChild(deleteBtn);
+        wrapper.appendChild(editBtn);
         container.appendChild(wrapper);
     }
 };
@@ -485,6 +414,15 @@ const App = {
                 e.preventDefault();
                 e.stopPropagation();
                 EditMode.handleLLMReprocess();
+            });
+        }
+
+        const editCloseBtn = document.getElementById('edit-close-btn');
+        if (editCloseBtn) {
+            editCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                EditMode.closeEditDialog();
             });
         }
 
@@ -935,9 +873,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('diary_filename');
                 localStorage.removeItem('diary_timestamp');
                 
-                // Clear footer timestamp
-                StorageManager.clearFooterTimestamp();
-                
                 // Clear search
                 const searchInput = document.getElementById('search-input');
                 if (searchInput) {
@@ -951,9 +886,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize swipe-to-delete
-    if (window.SwipeDeleteHandler) {
-        const swipeHandler = new SwipeDeleteHandler();
+    // Initialize swipe-to-edit
+    if (window.SwipeEditHandler) {
+        const swipeHandler = new SwipeEditHandler();
         swipeHandler.init();
     }
 

@@ -16,21 +16,20 @@ const EssayGenerator = {
     },
 
     /**
-     * Load style examples from external file
+     * Load style examples from window global
      */
     async loadStyleExamples() {
         if (this.styleExamples) return this.styleExamples;
 
-        try {
-            const response = await fetch('src/essay-style-examples.txt');
-            if (!response.ok) throw new Error('Failed to load style examples');
-            this.styleExamples = await response.text();
-            return this.styleExamples;
-        } catch (error) {
-            // Silently fallback to empty string if file can't be loaded (e.g., CORS when running from file://)
+        // Get style examples from window global (loaded via script tag)
+        if (window.ESSAY_STYLE_EXAMPLES) {
+            this.styleExamples = window.ESSAY_STYLE_EXAMPLES;
+        } else {
+            console.warn('Essay style examples not loaded');
             this.styleExamples = '';
-            return this.styleExamples;
         }
+        
+        return this.styleExamples;
     },
 
     /**
@@ -65,9 +64,8 @@ const EssayGenerator = {
                 // Store the essay as the new current analysis for copying
                 window.LLMEntry.currentAnalysis = essay.text;
 
-                // Display essay with token info
-                const statusLine = `Tokens used: ${essay.usage.totalTokens}<br>Model: ${window.LLMEntry.selectedModel}`;
-                content.innerHTML = `${essay.text}\n\n<span style="color: #FF5100;">${statusLine}</span>`;
+                // Display essay text only (no token info)
+                content.textContent = essay.text;
             }
         } catch (error) {
             console.error('Essay generation error:', error);
@@ -92,7 +90,7 @@ const EssayGenerator = {
         const styleExamples = await this.loadStyleExamples();
 
         // ============================================
-        // ESSAY PROMPT - Edit src/essay-style-examples.txt to customize style examples
+        // ESSAY PROMPT - Edit src/essay-style-examples.js (window.ESSAY_STYLE_EXAMPLES) to customize style examples
         // ============================================
         const essayPrompt = `Write **one cohesive paragraph** using **only the provided information**. Your response must adhere strictly to the following requirements:
 
