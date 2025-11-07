@@ -9,25 +9,31 @@
  * 2. viewport-fix.js -> window.ViewportFix
  * 3. theme.js -> (no export, self-initializing)
  * 4. navigation.js -> window.Navigation, window.navigationInstance
- * 4. form.js -> window.EntryForm
- * 5. edit.js -> window.EditMode
- * 6. system-prompt.js -> window.SYSTEM_PROMPT
- * 7. analysis-prompt.js -> window.ANALYSIS_PROMPT
- * 8. llm.js -> window.LLMEntry
- * 9. llm-settings.js -> window.LLMSettings
- * 10. about.js -> window.AboutInfo
- * 11. combined-about.js -> window.CombinedAboutForm
- * 12. essay-style-examples.js -> window.ESSAY_STYLE_EXAMPLES
- * 13. essay.js -> window.EssayGenerator
- * 14. swipe-delete.js -> window.SwipeEditHandler, window.SwipeDeleteHandler
- * 15. diary.js -> window.StorageManager, window.DisplayManager
+ * 5. form.js -> window.EntryForm
+ * 6. edit.js -> window.EditMode
+ * 7. prompt-config.js -> window.PROMPT_CONFIG
+ * 8. system-prompt.js -> window.SYSTEM_PROMPT
+ * 9. analysis-prompt.js -> window.ANALYSIS_PROMPT
+ * 10. essay-style-examples.js -> window.ESSAY_STYLE_EXAMPLES
+ * 11. essay-prompt.js -> window.ESSAY_PROMPT
+ * 12. prompt-manager.js -> window.PromptManager
+ * 13. llm-api.js -> window.LLMAPI
+ * 14. llm.js -> window.LLMEntry
+ * 15. llm-settings.js -> window.LLMSettings
+ * 16. about.js -> window.AboutInfo
+ * 17. combined-about.js -> window.CombinedAboutForm
+ * 18. essay.js -> window.EssayGenerator
+ * 19. swipe-delete.js -> window.SwipeEditHandler, window.SwipeDeleteHandler
+ * 20. diary.js -> window.StorageManager, window.DisplayManager
  * 
  * Key Dependencies:
  * - Navigation depends on: EntryForm, CombinedAboutForm
  * - EntryForm depends on: LLMEntry, StorageManager
  * - EditMode depends on: LLMEntry, StorageManager, DisplayManager
- * - LLMEntry depends on: SYSTEM_PROMPT, LLMSettings
- * - EssayGenerator depends on: ESSAY_STYLE_EXAMPLES, ANALYSIS_PROMPT, LLMSettings
+ * - PromptManager depends on: PROMPT_CONFIG, SYSTEM_PROMPT, ANALYSIS_PROMPT, ESSAY_PROMPT, ESSAY_STYLE_EXAMPLES
+ * - LLMAPI provides: Unified API abstraction for multiple providers
+ * - LLMEntry depends on: PromptManager, LLMAPI, PROMPT_CONFIG
+ * - EssayGenerator depends on: PromptManager, LLMAPI, PROMPT_CONFIG
  * - CombinedAboutForm depends on: StorageManager, LLMSettings
  * - DisplayManager depends on: EditMode, SwipeEditHandler
  * 
@@ -43,13 +49,17 @@ window.NOTD_MODULES = {
     navigationInstance: null,
     EntryForm: null,
     EditMode: null,
+    PROMPT_CONFIG: null,
     SYSTEM_PROMPT: null,
     ANALYSIS_PROMPT: null,
+    ESSAY_STYLE_EXAMPLES: null,
+    ESSAY_PROMPT: null,
+    PromptManager: null,
+    LLMAPI: null,
     LLMEntry: null,
     LLMSettings: null,
     AboutInfo: null,
     CombinedAboutForm: null,
-    ESSAY_STYLE_EXAMPLES: null,
     EssayGenerator: null,
     SwipeEditHandler: null,
     SwipeDeleteHandler: null,

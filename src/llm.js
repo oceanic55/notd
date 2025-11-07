@@ -304,42 +304,44 @@ const LLMEntry = {
       throw new Error('API key not set');
     }
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
-      },
-      body: JSON.stringify({
-        model: this.selectedModel,
-        messages: [
-          {
-            role: 'system',
-            content: window.SYSTEM_PROMPT || 'Error: System prompt not loaded'
-          },
-          {
-            role: 'user',
-            content: text
-          }
-        ],
-        temperature: isReprocess ? 0.5 : 0.2,  // Higher temp for reprocessing to allow more variation
-        max_tokens: isReprocess ? 500 : 300    // More tokens for reprocessing
-      })
+    // Get configuration from PromptManager
+    const config = window.PromptManager?.config || window.PROMPT_CONFIG;
+    const temperature = isReprocess ? config.system.reprocessTemperature : config.system.temperature;
+    const maxTokens = isReprocess ? config.system.reprocessMaxTokens : config.system.maxTokens;
+
+    // Use LLM API abstraction
+    const result = await window.LLMAPI.sendChatRequest({
+      provider: 'groq',
+      apiKey: this.apiKey,
+      model: this.selectedModel,
+      messages: [
+        {
+          role: 'system',
+          content: window.PromptManager?.getSystemPrompt() || window.SYSTEM_PROMPT || 'Error: System prompt not loaded'
+        },
+        {
+          role: 'user',
+          content: text
+        }
+      ],
+      temperature: temperature,
+      maxTokens: maxTokens
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'API request failed');
-    }
-
-    const data = await response.json();
-    const content = data.choices[0]?.message?.content;
-
-    if (!content) {
+    if (!result.text) {
       throw new Error('No response from API');
     }
 
-    // Parse JSON response
+    // Parse JSON response using new validation method
+    return this.parseJSONResponse(result.text);
+  },
+
+  /**
+   * Parse JSON response with validation and repair
+   * @param {string} content - Raw response content
+   * @returns {Object} Parsed response with place and note
+   */
+  parseJSONResponse(content) {
     try {
       const parsed = JSON.parse(content);
       return {
@@ -347,29 +349,43 @@ const LLMEntry = {
         note: parsed.note || ''
       };
     } catch (e) {
-      // Try to repair common JSON errors
-      let repairedContent = content.trim();
-      
-      // Remove trailing text after closing brace
-      const lastBrace = repairedContent.lastIndexOf('}');
-      if (lastBrace !== -1) {
-        repairedContent = repairedContent.substring(0, lastBrace + 1);
-      }
-      
-      // Try parsing again
+      // Attempt repair
+      const repaired = this.repairJSON(content);
       try {
-        const parsed = JSON.parse(repairedContent);
+        const parsed = JSON.parse(repaired);
         console.log('JSON repaired successfully');
         return {
           place: parsed.place || '',
           note: parsed.note || ''
         };
       } catch (e2) {
-        console.error('JSON parse error. Original:', content);
-        console.error('Attempted repair:', repairedContent);
+        console.error('JSON parse failed:', { original: content, repaired });
         throw new Error('Invalid response format from API');
       }
     }
+  },
+
+  /**
+   * Repair common JSON formatting errors
+   * @param {string} content - Malformed JSON string
+   * @returns {string} Repaired JSON string
+   */
+  repairJSON(content) {
+    let repaired = content.trim();
+    
+    // Remove leading text before opening brace
+    const firstBrace = repaired.indexOf('{');
+    if (firstBrace !== -1) {
+      repaired = repaired.substring(firstBrace);
+    }
+    
+    // Remove trailing text after closing brace
+    const lastBrace = repaired.lastIndexOf('}');
+    if (lastBrace !== -1) {
+      repaired = repaired.substring(0, lastBrace + 1);
+    }
+    
+    return repaired;
   },
 
   /**
@@ -552,68 +568,42 @@ const LLMEntry = {
       return `${place}: ${note}`;
     }).join('\n');
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
-      },
-      body: JSON.stringify({
-        model: this.selectedModel,
-        messages: [
-          {
-            role: 'system',
-            content: window.ANALYSIS_PROMPT || 'Error: Analysis prompt not loaded'
-          },
-          {
-            role: 'user',
-            content: entriesText
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 250
-      })
+    // Get configuration from PromptManager
+    const config = window.PromptManager?.config || window.PROMPT_CONFIG;
+
+    // Use LLM API abstraction
+    const result = await window.LLMAPI.sendChatRequest({
+      provider: 'groq',
+      apiKey: this.apiKey,
+      model: this.selectedModel,
+      messages: [
+        {
+          role: 'system',
+          content: window.PromptManager?.getAnalysisPrompt() || window.ANALYSIS_PROMPT || 'Error: Analysis prompt not loaded'
+        },
+        {
+          role: 'user',
+          content: entriesText
+        }
+      ],
+      temperature: config.analysis.temperature,
+      maxTokens: config.analysis.maxTokens
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      const errorMessage = errorData.error?.message || 'API request failed';
-      
-      // Check for rate limit error
-      if (response.status === 429 || errorMessage.toLowerCase().includes('rate limit')) {
-        throw new Error(`Rate limit reached for model "${this.selectedModel}". Please try again later or switch to a different model.`);
-      }
-      
-      throw new Error(errorMessage);
-    }
-
-    const data = await response.json();
-    const choice = data.choices[0];
-    const analysis = choice?.message?.content;
-
-    if (!analysis) {
+    if (!result.text) {
       throw new Error('No response from API');
     }
-
-    // Get token usage and completion status
-    const usage = data.usage || {};
-    const finishReason = choice?.finish_reason || 'unknown';
-    const isComplete = finishReason === 'stop';
     
     // Check if response was truncated
-    if (finishReason === 'length') {
+    if (result.finishReason === 'length') {
       console.warn('Response was truncated due to max_tokens limit');
     }
 
     return {
-      analysis,
-      usage: {
-        promptTokens: usage.prompt_tokens || 0,
-        completionTokens: usage.completion_tokens || 0,
-        totalTokens: usage.total_tokens || 0
-      },
-      finishReason,
-      isComplete
+      analysis: result.text,
+      usage: result.usage,
+      finishReason: result.finishReason,
+      isComplete: result.isComplete
     };
   },
 

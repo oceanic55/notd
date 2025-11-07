@@ -10,7 +10,19 @@
 
 
 
-### Latest: v4.8.0 (2024-11-07)
+### Latest: v4.9.0 (2025-11-07)
+**Prompt System Refactoring & Architecture Improvements**
+
+- Created centralized prompt configuration system (src/prompt-config.js) with adjustable parameters for word counts, temperatures, and modes
+- Extracted essay prompt from inline code to dedicated file (src/essay-prompt.js) for easier editing
+- Implemented PromptManager module with validation, fallback mechanisms, and dynamic prompt interpolation
+- Added LLM API abstraction layer (src/llm-api.js) supporting multiple providers (Groq, OpenAI, Anthropic)
+- Enhanced JSON parsing with automatic repair logic for malformed API responses
+- Restructured system prompt with clear section headers (Task Overview, Processing Modes, Location Detection, Note Writing, URL Handling)
+- Updated module loading order and registry to support new architecture
+- Maintained full backward compatibility with existing features
+
+### Previous: v4.8.0 (2024-11-07)
 
 v4.8.0
 - Migrated prompt files from data/ to src/ directory (system-prompt.js, analysis-prompt.js)

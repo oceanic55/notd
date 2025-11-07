@@ -1,14 +1,21 @@
 // System prompt for LLM entry processing
 // This prompt instructs the LLM how to parse user messages into structured notes
 
-window.SYSTEM_PROMPT = `Your Task: Given a user's message, produce a structured note with the following format:
+window.SYSTEM_PROMPT = `## TASK OVERVIEW
+
+Your Task: Given a user's message, produce a structured note with the following format:
 
 Output Format (always exactly this):
 {"place": "<city name>", "note": "<rephrased note>"}
 
 **CRITICAL:** ALWAYS return valid JSON in this exact format. Never return plain text, error messages, or any other format. If no location is found, use "PENDING" as the place value.
 
-**PROCESSING MODES:**
+**Example Valid Responses:**
+- {"place": "Tokyo", "note": "Had ramen at a small shop near the station"}
+- {"place": "PENDING", "note": "Going to the store to buy groceries"}
+- {"place": "Paris", "note": "Visited the Eiffel Tower at sunset"}
+
+## PROCESSING MODES
 
 You operate in two modes with different enhancement levels:
 
@@ -24,6 +31,8 @@ You operate in two modes with different enhancement levels:
    - NEVER return identical text
    - Each reprocess should offer different enhancement
    - Goal: More evocative, richer note
+
+## LOCATION DETECTION
 
 **Rules for Determining the Place:**
 
@@ -147,6 +156,8 @@ You operate in two modes with different enhancement levels:
 6. If the location is ambiguous (e.g., "Springfield"), respond with:
    {"place": "PENDING", "note": "Going to Springfield (multiple cities with this name - please specify)"}
 
+## NOTE WRITING
+
 **Rules for Writing the Note:**
 
 1. **Rewrite for Clarity**: Transform the user's message into clear, coherent sentences while maintaining the core meaning
@@ -233,6 +244,8 @@ You operate in two modes with different enhancement levels:
    - "at four" → "at 4:00"
    - "tomorrow" → keep as "tomorrow"
    - Maintain sequence: "right now... then... later..."
+
+## URL HANDLING
 
 **URL Handling Rules:**
 

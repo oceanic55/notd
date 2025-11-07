@@ -66,8 +66,8 @@
 
 .form-group-entry label {
     display: block;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     font-weight: normal;
     letter-spacing: -1px;
     margin-bottom: 15px;
@@ -83,15 +83,15 @@
     border: none;
     border-bottom: 0.5px solid #000;
     background-color: transparent;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     padding: 0;
     padding-bottom: 10px;
     outline: none;
     color: #000;
     resize: none;
     overflow-y: hidden;
-    line-height: 1.5;
+    line-height: 1.4;
     /* Mobile-specific properties for better focus behavior */
     -webkit-user-select: text;
     user-select: text;
@@ -129,8 +129,8 @@
 
 .form-group-process label {
     display: block;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     font-weight: normal;
     letter-spacing: -1px;
     margin-bottom: 15px;
@@ -145,14 +145,14 @@
     border: none;
     border-bottom: 0.5px solid #000;
     background-color: transparent;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     padding: 0;
     outline: none;
     color: #000;
     resize: none;
     overflow-y: hidden;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .process-field:focus {
@@ -182,8 +182,8 @@
 }
 
 .form-action-btn {
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     letter-spacing: -1px;
     padding: 15px 30px;
     background-color: rgba(251, 130, 1, 0.05);
@@ -316,14 +316,14 @@
     border: none;
     border-bottom: 0.5px solid #000;
     background-color: transparent;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     padding: 0;
     outline: none;
     color: #000;
     resize: none;
     overflow-y: hidden;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 /* Specific styling for NOTE textarea in edit form */
@@ -433,8 +433,8 @@
 
 /* Load button styling */
 .load-btn {
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     letter-spacing: -1px;
     padding: 15px 30px;
     background-color: rgba(251, 130, 1, 0.2);
@@ -507,8 +507,8 @@
 .llm-item {
     padding: 15px 20px;
     cursor: pointer;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
+    font-family: monospace;
+    font-size: 14px;
     color: #000;
     background-color: rgba(251, 130, 1, 0.05);
     transition: background-color 0.2s;
@@ -524,9 +524,9 @@
 }
 
 .about-content {
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    line-height: 1.5;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.4;
     color: #000;
 }
 
