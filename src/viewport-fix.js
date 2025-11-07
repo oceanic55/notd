@@ -4,6 +4,7 @@
 const ViewportFix = {
     initialize() {
         this.setViewportHeight();
+        this.preventZoom();
         
         // Update on resize and orientation change
         window.addEventListener('resize', () => this.setViewportHeight());
@@ -23,6 +24,23 @@ const ViewportFix = {
                 ticking = true;
             }
         });
+    },
+
+    preventZoom() {
+        // Prevent pinch-to-zoom gestures
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('gesturechange', (e) => e.preventDefault());
+        document.addEventListener('gestureend', (e) => e.preventDefault());
+        
+        // Prevent double-tap zoom on touch devices
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
     },
 
     setViewportHeight() {

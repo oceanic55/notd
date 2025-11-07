@@ -4,7 +4,7 @@ nav#navigation {
     width: 100%;
     max-width: 490px;
     margin: 0 auto;
-    background-color: #E6E5DF;
+    background-color: rgba(230, 229, 223, 0.5);
     border-radius: 12px;
     padding: 0.06rem 0.75rem;
     display: flex;
@@ -36,7 +36,7 @@ nav#navigation {
     display: flex;
     align-items: center;
     transition: filter 300ms ease;
-    height: 43.2px;
+    height: 32px;
 }
 
 .logo-button:hover,
@@ -45,7 +45,7 @@ nav#navigation {
 }
 
 .logo-section img {
-    height: 43.2px;
+    height: 32px;
     width: auto;
     display: block;
 }

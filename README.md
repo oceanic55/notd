@@ -10,7 +10,19 @@
 
 
 
-### Latest: v4.9.0 (2025-11-07)
+### Latest: v5.0.0 (2025-11-07)
+**Mobile Accessibility & User Experience Enhancements**
+
+- Added iOS Dynamic Type support for automatic font scaling based on system accessibility settings
+- Implemented responsive font sizing using CSS custom properties across all UI elements
+- Created dynamic type detection system that responds to iOS text size preferences (XL, XXL, XXXL)
+- Prevented accidental pinch-to-zoom gestures on mobile browsers
+- Disabled user scaling with maximum-scale=1.0 viewport setting for consistent mobile experience
+- Added gesture event handlers to block zoom on iOS Safari (gesturestart, gesturechange, gestureend)
+- Prevented double-tap zoom on touch devices with touch event timing logic
+- Enhanced viewport management for better cross-device compatibility
+
+### Previous: v4.9.0 (2025-11-07)
 **Prompt System Refactoring & Architecture Improvements**
 
 - Created centralized prompt configuration system (src/prompt-config.js) with adjustable parameters for word counts, temperatures, and modes
@@ -21,8 +33,6 @@
 - Restructured system prompt with clear section headers (Task Overview, Processing Modes, Location Detection, Note Writing, URL Handling)
 - Updated module loading order and registry to support new architecture
 - Maintained full backward compatibility with existing features
-
-### Previous: v4.8.0 (2024-11-07)
 
 v4.8.0
 - Migrated prompt files from data/ to src/ directory (system-prompt.js, analysis-prompt.js)
