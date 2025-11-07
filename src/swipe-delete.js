@@ -208,3 +208,7 @@ class SwipeEditHandler {
 window.SwipeEditHandler = SwipeEditHandler;
 // Keep old name for backward compatibility
 window.SwipeDeleteHandler = SwipeEditHandler;
+if (window.NOTD_MODULES) {
+    window.NOTD_MODULES.SwipeEditHandler = SwipeEditHandler;
+    window.NOTD_MODULES.SwipeDeleteHandler = SwipeEditHandler;
+}

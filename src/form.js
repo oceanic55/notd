@@ -208,7 +208,9 @@ const EntryForm = {
                 processField.value = `Place: ${result.place}\nNote: ${result.note}`;
                 
                 // Auto-expand the process field
-                this.autoExpandTextarea(processField);
+                if (window.Utils) {
+                    window.Utils.autoExpandTextarea(processField);
+                }
             }
 
             // Store the result for saving
@@ -289,15 +291,15 @@ const EntryForm = {
         const entryField = document.getElementById('entry-text-input');
         const processField = document.getElementById('process-text-input');
         
-        if (entryField) {
+        if (entryField && window.Utils) {
             entryField.addEventListener('input', () => {
-                this.autoExpandTextarea(entryField);
+                window.Utils.autoExpandTextarea(entryField);
             });
         }
 
-        if (processField) {
+        if (processField && window.Utils) {
             processField.addEventListener('input', () => {
-                this.autoExpandTextarea(processField);
+                window.Utils.autoExpandTextarea(processField);
             });
         }
     },
@@ -322,31 +324,9 @@ const EntryForm = {
         if (aiModal) aiModal.classList.remove('active');
     },
 
-    autoExpandTextarea(textarea) {
-        // Get the computed style first
-        const computedStyle = window.getComputedStyle(textarea);
-        const minHeight = parseInt(computedStyle.minHeight) || 60;
-        const maxHeight = parseInt(computedStyle.maxHeight);
-        
-        // Temporarily set to min height to get accurate scrollHeight
-        textarea.style.height = minHeight + 'px';
-        textarea.style.overflowY = 'hidden';
-        
-        // Calculate the content height
-        const scrollHeight = textarea.scrollHeight;
-        const newHeight = Math.max(scrollHeight, minHeight);
-        
-        if (maxHeight && newHeight >= maxHeight) {
-            // At max height, enable scrolling
-            textarea.style.height = maxHeight + 'px';
-            textarea.style.overflowY = 'auto';
-        } else {
-            // Below max height, expand without scrolling
-            textarea.style.height = newHeight + 'px';
-            textarea.style.overflowY = 'hidden';
-        }
-    }
+    // Removed: autoExpandTextarea - now in src/utils.js
 };
+
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -355,3 +335,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other modules
 window.EntryForm = EntryForm;
+if (window.NOTD_MODULES) window.NOTD_MODULES.EntryForm = EntryForm;

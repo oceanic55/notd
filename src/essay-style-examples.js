@@ -12,3 +12,4 @@ These are the sounds of Japan cooking. And everything that you will put in your 
 
 // Export to window for use in other scripts
 window.ESSAY_STYLE_EXAMPLES = ESSAY_STYLE_EXAMPLES;
+if (window.NOTD_MODULES) window.NOTD_MODULES.ESSAY_STYLE_EXAMPLES = ESSAY_STYLE_EXAMPLES;

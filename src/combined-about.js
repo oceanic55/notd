@@ -302,7 +302,7 @@ const CombinedAboutForm = {
         // Update app version
         const appVersion = document.getElementById('combined-app-version');
         if (appVersion) {
-            appVersion.textContent = '4.6.0';
+            appVersion.textContent = '4.8.0';
         }
     },
 
@@ -340,3 +340,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other modules
 window.CombinedAboutForm = CombinedAboutForm;
+if (window.NOTD_MODULES) window.NOTD_MODULES.CombinedAboutForm = CombinedAboutForm;

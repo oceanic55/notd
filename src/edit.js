@@ -66,9 +66,11 @@ const EditMode = {
     }
     if (noteInput) {
       noteInput.value = this.currentEntryData.note || '';
-      // Auto-expand textarea using the helper function
+      // Auto-expand textarea using the shared utility
       setTimeout(() => {
-        autoExpandTextarea(noteInput);
+        if (window.Utils) {
+          window.Utils.autoExpandTextarea(noteInput, 210);
+        }
       }, 0);
     }
 
@@ -105,9 +107,9 @@ const EditMode = {
       
       // Set up auto-expand for the note textarea
       const editNoteInput = newForm.querySelector('#edit-note-input');
-      if (editNoteInput) {
+      if (editNoteInput && window.Utils) {
         editNoteInput.addEventListener('input', function() {
-          autoExpandTextarea(editNoteInput);
+          window.Utils.autoExpandTextarea(editNoteInput, 210);
         });
       }
     }
@@ -238,14 +240,7 @@ const EditMode = {
       
       console.log(`Deleted entry at index ${this.editingIndex}. Remaining entries:`, entries.length);
       
-      // Visual feedback - remind user to save
-      const saveBtn = document.getElementById('save-btn-header');
-      if (saveBtn) {
-        saveBtn.style.borderColor = '#FF5100';
-        setTimeout(() => {
-          saveBtn.style.borderColor = '';
-        }, 2000);
-      }
+      // Entry deleted - auto-saved to localStorage
     }
 
     // Close dialog (this will also exit edit mode)
@@ -298,31 +293,7 @@ const EditMode = {
 
 };
 
-// Helper function to auto-expand textarea
-function autoExpandTextarea(textarea) {
-  // Get the computed style first
-  const computedStyle = window.getComputedStyle(textarea);
-  const minHeight = parseInt(computedStyle.minHeight) || 210;
-  const maxHeight = parseInt(computedStyle.maxHeight);
-  
-  // Temporarily set to min height to get accurate scrollHeight
-  textarea.style.height = minHeight + 'px';
-  textarea.style.overflowY = 'hidden';
-  
-  // Calculate the content height
-  const scrollHeight = textarea.scrollHeight;
-  const newHeight = Math.max(scrollHeight, minHeight);
-  
-  if (maxHeight && newHeight >= maxHeight) {
-    // At max height, enable scrolling
-    textarea.style.height = maxHeight + 'px';
-    textarea.style.overflowY = 'auto';
-  } else {
-    // Below max height, expand without scrolling
-    textarea.style.height = newHeight + 'px';
-    textarea.style.overflowY = 'hidden';
-  }
-}
+// Removed: autoExpandTextarea - now in src/utils.js (window.Utils.autoExpandTextarea)
 
 // Initialize edit form overlay handlers
 document.addEventListener('DOMContentLoaded', () => {
@@ -389,12 +360,13 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Set up auto-expand for edit form textareas
   const editNoteInput = document.getElementById('edit-note-input');
-  if (editNoteInput) {
+  if (editNoteInput && window.Utils) {
     editNoteInput.addEventListener('input', () => {
-      autoExpandTextarea(editNoteInput);
+      window.Utils.autoExpandTextarea(editNoteInput, 210);
     });
   }
 });
 
 // Export for use in main app
 window.EditMode = EditMode;
+if (window.NOTD_MODULES) window.NOTD_MODULES.EditMode = EditMode;

@@ -216,7 +216,6 @@ body {
 #load-btn,
 #enter-btn,
 #ai-enter-btn,
-#save-btn-header,
 #edit-btn,
 #copy-btn,
 #ai-analyze-btn {
@@ -233,7 +232,6 @@ body {
 #load-btn:hover,
 #enter-btn:hover,
 #ai-enter-btn:hover,
-#save-btn-header:hover,
 #edit-btn:hover,
 #copy-btn:hover,
 #ai-analyze-btn:hover {

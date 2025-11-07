@@ -41,3 +41,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other modules
 window.ViewportFix = ViewportFix;
+if (window.NOTD_MODULES) window.NOTD_MODULES.ViewportFix = ViewportFix;

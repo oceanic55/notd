@@ -191,8 +191,8 @@ nav#navigation {
 }
 
 /* Dropdown Menu Styles */
-#fullViewBtn,
-#overviewBtn {
+#full-view-btn,
+#about-btn {
     position: relative;
     overflow: visible;
 }

@@ -209,7 +209,18 @@ const LLMEntry = {
     const key = prompt(message, this.apiKey || '');
 
     if (key && key.trim()) {
-      this.apiKey = key.trim();
+      const trimmedKey = key.trim();
+      
+      // Validate API key format using Utils if available
+      if (window.Utils) {
+        const validation = window.Utils.validateAPIKey(trimmedKey);
+        if (!validation.isValid) {
+          alert(`Invalid API key: ${validation.error}\n\nPlease check your key and try again.`);
+          return false;
+        }
+      }
+      
+      this.apiKey = trimmedKey;
       localStorage.setItem('groq_api_key', this.apiKey);
       alert('API key saved successfully!');
       return true;
@@ -695,3 +706,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in main app
 window.LLMEntry = LLMEntry;
+if (window.NOTD_MODULES) window.NOTD_MODULES.LLMEntry = LLMEntry;

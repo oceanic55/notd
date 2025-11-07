@@ -7,8 +7,8 @@ class Navigation {
         this.hoverView = null;
         
         this.pill = document.getElementById('pill');
-        this.fullViewBtn = document.getElementById('fullViewBtn');
-        this.aboutBtn = document.getElementById('aboutBtn');
+        this.fullViewBtn = document.getElementById('full-view-btn');
+        this.aboutBtn = document.getElementById('about-btn');
         this.logoBtn = document.getElementById('logo-btn');
         
 
@@ -290,8 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Wait for EntryForm to be available before initializing
     waitForEntryForm(() => {
         window.navigationInstance = new Navigation();
+        if (window.NOTD_MODULES) window.NOTD_MODULES.navigationInstance = window.navigationInstance;
     });
 });
 
 // Export for use in other modules
 window.Navigation = Navigation;
+if (window.NOTD_MODULES) window.NOTD_MODULES.Navigation = Navigation;

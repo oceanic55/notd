@@ -14,3 +14,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Export for use in other modules
 window.LLMSettings = LLMSettings;
+if (window.NOTD_MODULES) window.NOTD_MODULES.LLMSettings = LLMSettings;

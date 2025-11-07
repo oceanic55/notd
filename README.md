@@ -8,6 +8,34 @@
 
 ## Changelog
 
+
+
+### Latest: v4.8.0 (2024-11-07)
+
+v4.8.0
+- Migrated prompt files from data/ to src/ directory (system-prompt.js, analysis-prompt.js)
+- Updated index.html to reference prompts from src/ instead of data/
+- Removed legacy prompt files (old prompt.txt, new prompt.txt, new prompt 2.txt)
+- Deleted unused test files (test-forms.html, mobile-focus-test.html, forms.txt, NOTD.md)
+- Fixed essay generator to eliminate formulaic "As I..." opening patterns
+- Added explicit prohibition against clichéd first-person constructions in essay prompt
+- Cleaned up data/ directory structure in both current and target workspaces
+
+11.07::14:26
+
+v4.7.0
+- Removed 9 unused files (~15% codebase reduction)
+- Created shared utility module (src/utils.js)
+- Consolidated duplicate code
+- Added input validation utilities
+- Improved essay generation with full style examples
+- Created module registry system
+- Standardized button IDs to kebab-case
+- Fixed missing DOM element references
+- Enhanced documentation
+
+11.07::13:09
+
 v4.6.0
 Externalized prompts
 PENDING flag system

@@ -1,5 +1,5 @@
 // Data Models
-// Version: 1.0.5 - Added timestamp system for cache busting
+// Version: 4.7.0 - Major cleanup release (consolidated code, removed unused files, improved validation)
 
 /**
  * DiaryEntry represents a single diary entry
@@ -165,15 +165,6 @@ const StorageManager = {
 
                 // Save to localStorage with timestamp
                 this.saveToLocalStorage(timestamp);
-
-                // Visual feedback
-                const saveBtn = document.getElementById('save-btn-header');
-                if (saveBtn) {
-                    saveBtn.style.borderColor = '#10b981';
-                    setTimeout(() => {
-                        saveBtn.style.borderColor = '';
-                    }, 1500);
-                }
             } else {
                 // Fallback to download
                 const url = URL.createObjectURL(dataBlob);
@@ -203,6 +194,7 @@ const StorageManager = {
 
 // Export StorageManager for use in other modules
 window.StorageManager = StorageManager;
+if (window.NOTD_MODULES) window.NOTD_MODULES.StorageManager = StorageManager;
 
 // Display Manager Module
 const DisplayManager = {
@@ -325,6 +317,7 @@ const DisplayManager = {
 
 // Export DisplayManager for use in other modules
 window.DisplayManager = DisplayManager;
+if (window.NOTD_MODULES) window.NOTD_MODULES.DisplayManager = DisplayManager;
 
 // Application Controller
 const App = {
@@ -372,10 +365,7 @@ const App = {
             enterBtn.addEventListener('click', () => this.handleEnterClick());
         }
 
-        const saveBtnHeader = document.getElementById('save-btn-header');
-        if (saveBtnHeader) {
-            saveBtnHeader.addEventListener('click', () => StorageManager.saveToFile());
-        }
+        // Save button removed from header - save functionality available in combined-about form
 
         const editBtn = document.getElementById('edit-btn');
         if (editBtn) {
@@ -893,4 +883,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     App.initialize();
+    
+    // Verify all modules loaded successfully
+    if (window.verifyModulesLoaded) {
+        window.verifyModulesLoaded();
+    }
 });
