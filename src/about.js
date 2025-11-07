@@ -60,7 +60,7 @@ const AboutInfo = {
         // Update app version from package.json or hardcoded
         const appVersion = document.getElementById('app-version');
         if (appVersion) {
-            appVersion.textContent = '4.0.1';
+            appVersion.textContent = '4.6.0';
         }
     },
 

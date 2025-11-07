@@ -88,11 +88,22 @@ const EssayGenerator = {
 
         // Load style examples from external file
         const styleExamples = await this.loadStyleExamples();
+        
+        // Abbreviate to first 1000 characters for token efficiency
+        const abbreviatedExamples = styleExamples ? styleExamples.substring(0, 1000) : '';
 
         // ============================================
         // ESSAY PROMPT - Edit src/essay-style-examples.js (window.ESSAY_STYLE_EXAMPLES) to customize style examples
         // ============================================
-        const essayPrompt = `Write **one cohesive paragraph** using **only the provided information**. Your response must adhere strictly to the following requirements:
+        const essayPrompt = `Study this style example carefully:
+
+---BEGIN STYLE EXAMPLE---
+${abbreviatedExamples}
+---END STYLE EXAMPLE---
+
+Notice the techniques: sensory details (sounds, textures), varied sentence rhythm, concrete imagery, evocative language.
+
+Now, write **one cohesive paragraph** using **only the provided information**. Your response must adhere strictly to the following requirements:
 
 - **Structure:** A single paragraph with **no line breaks** or sub-divisions.
 - **Length:** Between **120 and 140 words** 

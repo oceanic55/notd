@@ -150,7 +150,7 @@ const EditMode = {
 
     const reprocessBtn = document.getElementById('edit-llm-reprocess-btn');
     if (reprocessBtn) {
-      reprocessBtn.textContent = 'Processing...';
+      reprocessBtn.style.setProperty('background-color', '#00ff00', 'important');
       reprocessBtn.disabled = true;
     }
 
@@ -163,7 +163,7 @@ const EditMode = {
         textToProcess = `Location: ${placeInput.value.trim()}\n\n${noteInput.value}`;
       }
 
-      const result = await window.LLMEntry.processWithLLM(textToProcess);
+      const result = await window.LLMEntry.processWithLLM(textToProcess, true);  // true = isReprocess
 
       // Update form fields with LLM result
       if (placeInput) placeInput.value = result.place;
@@ -178,7 +178,7 @@ const EditMode = {
       alert(`Error: ${error.message}\n\nPlease check your API key and try again.`);
     } finally {
       if (reprocessBtn) {
-        reprocessBtn.textContent = 'Ai';
+        reprocessBtn.style.removeProperty('background-color');
         reprocessBtn.disabled = false;
       }
     }

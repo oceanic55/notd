@@ -285,8 +285,10 @@ const LLMEntry = {
 
   /**
    * Process text with Groq LLM
+   * @param {string} text - Text to process
+   * @param {boolean} isReprocess - Whether this is a reprocess (edit mode)
    */
-  async processWithLLM(text) {
+  async processWithLLM(text, isReprocess = false) {
     if (!this.apiKey) {
       throw new Error('API key not set');
     }
@@ -302,15 +304,15 @@ const LLMEntry = {
         messages: [
           {
             role: 'system',
-            content: 'Your Task: Given a user\'s message, produce a structured note with the following format:\n\nOutput Format (always exactly this):\n{"place": "<city name>", "note": "<rephrased note>"}\n\n**Rules for Determining the Place:**\n\n1. **Search Strategy**: Scan the entire message for location indicators in this priority order:\n   a. Explicit city names (e.g., "Paris", "Tokyo", "New York", "Osaka", "Kyoto")\n   b. Landmarks or venues that map to cities\n   c. Mountains or natural features with known base cities\n   d. Corporate headquarters with known locations\n   e. Regional indicators that can be narrowed to a specific city\n\n2. **City Recognition**: Accept common city names without qualifiers:\n   - "Osaka" is valid (no need for "Osaka City")\n   - "Tokyo" is valid (no need for "Tokyo Metropolis")\n   - "New York" is valid (no need for "New York City")\n   - Use the commonly known name, not the official administrative name\n\n3. **City Resolution**: Use the nearest practical/logistical city relevant to the location:\n\n**Mountains (use base/access town):**\n- Mount Everest → Kathmandu\n- K2 → Skardu\n- Kilimanjaro → Moshi\n- Mont Blanc → Chamonix\n- Denali → Talkeetna\n- Matterhorn → Zermatt\n- Aconcagua → Mendoza\n- Fuji → Fujiyoshida\n\n**Landmarks:**\n- Eiffel Tower → Paris\n- Statue of Liberty → New York\n- Golden Gate Bridge → San Francisco\n- Big Ben → London\n- Colosseum → Rome\n- Taj Mahal → Agra\n- Machu Picchu → Cusco\n- Great Wall → Beijing\n- Tokyo Tower → Tokyo\n- Sydney Opera House → Sydney\n\n**Corporate HQs:**\n- Apple HQ → Cupertino\n- Nike → Beaverton\n- Microsoft → Redmond\n- Google → Mountain View\n- Amazon → Seattle\n- Meta/Facebook → Menlo Park\n- Tesla → Austin\n\n4. Output ONLY the city name, with NO country/state/region/qualifiers\n\n5. If the location is ambiguous (e.g., "Springfield"), respond with:\n{"place": "CLARIFY", "note": "Which city do you mean by Springfield?"}\n\n6. If no location can be determined after thorough analysis, respond with:\n{"place": "CLARIFY", "note": "I couldn\'t determine the city. Please clarify."}\n\n**Rules for Writing the Note:**\n\n1. **Rewrite for Clarity**: Transform the user\'s message into clear, coherent sentences while maintaining the core meaning\n\n2. **ON RETRY/REPROCESS**: If this is a reprocessing attempt (user clicked "Reprocess"), the previous result was unsatisfactory. You MUST:\n   - Rephrase the note differently than before\n   - Try alternative word choices and sentence structures\n   - Adjust the level of detail or emphasis\n   - Consider whether the tone needs to be stronger or more nuanced\n   - NEVER produce the exact same output twice\n\n3. **PRESERVE EMOTIONAL TONE AND URGENCY**:\n   - Keep the exact emotional intensity: exhausted, determined, stressed, excited, frustrated, etc.\n   - NEVER soften strong language or dilute urgency\n   - "gotta sleep" → "completely exhausted and need to sleep now" NOT "need to get some rest"\n   - "hard" → "extremely difficult" NOT "challenging"\n   - "amazing" → "absolutely amazing" NOT "nice"\n\n4. **Content Fidelity**:\n   - Do NOT add information not present in the original\n   - Do NOT remove key details or context\n   - Do NOT assume or infer unstated facts\n   - Keep all specific details (times, names, items, etc.)\n\n5. **Style**:\n   - Write naturally and conversationally, NOT formally or clinically\n   - Use complete sentences, but keep it concise\n   - Avoid corporate or polished language\n   - Sound human, not like a report\n\n6. **Location Handling**: Do NOT repeat the city name in the note if it\'s already captured in the place field\n\n7. **Transcription Error Correction**: Fix obvious voice-to-text errors intelligently:\n   - "fall spell PHO" → "pho (spelled PHO)"\n   - "four" (when clearly time) → "4:00"\n   - Homophones in wrong context\n\n8. **Temporal Information**: Preserve time references clearly:\n   - "at four" → "at 4:00"\n   - "tomorrow" → keep as "tomorrow"\n   - Maintain sequence: "right now... then... later..."\n\n**URL Handling Rules:**\n\n1. NEVER follow, open, interpret, summarize, or describe any URL\n2. NEVER analyze what a URL points to or guess its content\n3. Preserve URLs exactly as they appear, character-for-character\n4. Keep full links intact and unchanged\n5. Include URLs in the note exactly as written if they\'re part of the context\n6. Do NOT reformat, shorten, expand, or explain links\n7. Do NOT replace URLs with descriptions (e.g., "https://example.com" must NOT become "the company website")\n8. If the user references a URL indirectly (e.g., "this link"), preserve the wording without resolving it'
+            content: window.SYSTEM_PROMPT || 'Error: System prompt not loaded'
           },
           {
             role: 'user',
             content: text
           }
         ],
-        temperature: 0.2,
-        max_tokens: 300
+        temperature: isReprocess ? 0.5 : 0.2,  // Higher temp for reprocessing to allow more variation
+        max_tokens: isReprocess ? 500 : 300    // More tokens for reprocessing
       })
     });
 
@@ -334,7 +336,28 @@ const LLMEntry = {
         note: parsed.note || ''
       };
     } catch (e) {
-      throw new Error('Invalid response format from API');
+      // Try to repair common JSON errors
+      let repairedContent = content.trim();
+      
+      // Remove trailing text after closing brace
+      const lastBrace = repairedContent.lastIndexOf('}');
+      if (lastBrace !== -1) {
+        repairedContent = repairedContent.substring(0, lastBrace + 1);
+      }
+      
+      // Try parsing again
+      try {
+        const parsed = JSON.parse(repairedContent);
+        console.log('JSON repaired successfully');
+        return {
+          place: parsed.place || '',
+          note: parsed.note || ''
+        };
+      } catch (e2) {
+        console.error('JSON parse error. Original:', content);
+        console.error('Attempted repair:', repairedContent);
+        throw new Error('Invalid response format from API');
+      }
     }
   },
 
@@ -529,7 +552,7 @@ const LLMEntry = {
         messages: [
           {
             role: 'system',
-            content: 'Extract subtle, novel patterns across notes, emphasizing:\n\nMotivations (why actions/choices occur)\nSensory experiences (how environments/activities are perceived)\nUnderlying philosophies (beliefs or values driving behavior)\n\nContext:\nCurrent State: Raw notes with implicit connections.\nTarget State: Concise thematic summary (≤700 chars) of non-obvious trends, grouped by categories (e.g., food, travel, social interactions).\n\nKey Constraints:\n- Exclude temporal details unless tied to deeper meaning.\n- Avoid over-interpretation; prioritize descriptive insights.\n\nRequirements:\n- Group notes by topic (e.g., food, travel, social interactions) to reveal hidden trends.\n- Identify sensory or emotional triggers (e.g., textures, sounds, ambiance).\n- Highlight surprising motivations (e.g., nostalgia, rebellion, curiosity).\n- Exclude obvious content (e.g., "enjoyed the meal" → focus on why it was meaningful).\n\nSuccess Criteria:\n- Novelty: Insights are unexpected or counterintuitive.\n- Depth: Connections reveal underlying reasons, not just surface observations.\n- Conciseness: Summary fits within 700 characters.\n\nAssumptions:\n- Notes contain implicit links (e.g., repeated themes, contrasts).\n- Grouping by topic will expose less obvious trends.\n- Sensory details are proxies for deeper emotional or philosophical drivers.\n\nFormatting Rules:\n- Use plain text only. NO markdown formatting.\n- Do NOT use asterisks, underscores, or any markdown syntax for bold, italic, or emphasis.\n- Do NOT use hashtags for headers.\n- Use simple text with colons for labels (e.g., "Food: description here").\n- Use quotation marks for emphasis instead of bold or italic.\n\nDeliverables:\n- Thematic clusters (e.g., "Food as rebellion," "Travel as escape").\n- Descriptive summary (≤700 chars) of patterns, motivations, and sensory triggers.\n\nExample Output Structure:\nFood: Recurring focus on "crunchy textures" tied to stress relief; spicy flavors correlate with risk-taking phases.\nTravel: Solo trips align with creative blocks—quiet hotels chosen for "empty space to think."\nSocial: Avoidance of loud gatherings linked to childhood memories of overstimulation.\nUnderlying theme: Seeking control through sensory boundaries.'
+            content: window.ANALYSIS_PROMPT || 'Error: Analysis prompt not loaded'
           },
           {
             role: 'user',

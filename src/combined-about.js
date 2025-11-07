@@ -271,7 +271,7 @@ const CombinedAboutForm = {
                 // Update selected model
                 if (window.LLMEntry) {
                     window.LLMEntry.selectedModel = model.id;
-                    localStorage.setItem('selected_llm_model', model.id);
+                    localStorage.setItem('groq_model', model.id);
                 }
             });
             
@@ -302,7 +302,7 @@ const CombinedAboutForm = {
         // Update app version
         const appVersion = document.getElementById('combined-app-version');
         if (appVersion) {
-            appVersion.textContent = '4.5.0';
+            appVersion.textContent = '4.6.0';
         }
     },
 

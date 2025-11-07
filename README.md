@@ -8,6 +8,17 @@
 
 ## Changelog
 
+v4.6.0
+Externalized prompts
+PENDING flag system
+Literary style enhancements
+Content fidelity rules
+Model selection fix
+Button color change
+Dual temperature system with JSON repair
+
+11.07::13:09
+
 v4.5.0
 - Streamlined changelog management process to prompt for version number instead of extracting from git
 - Updated guidelines to new 4-step process: prompt version, review history, write changelog, update app
