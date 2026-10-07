@@ -168,33 +168,7 @@ const LLMEntry = {
       }
     } catch (error) {
       console.error('Error loading models:', error);
-      
-      // Fallback to default models list
-      const fallbackModels = [
-        'qwen/qwen3-32b',
-        'groq/compound-mini',
-        'llama-3.1-8b-instant',
-        'llama-3.3-70b-versatile',
-        'moonshotai/kimi-k2-instruct-0905'
-      ];
-
-      selectElement.innerHTML = '';
-      fallbackModels.forEach(modelId => {
-        const option = document.createElement('option');
-        option.value = modelId;
-        const displayName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
-        option.textContent = displayName;
-        selectElement.appendChild(option);
-      });
-
-      // Restore selected model or default to first option
-      if (this.selectedModel && fallbackModels.includes(this.selectedModel)) {
-        selectElement.value = this.selectedModel;
-      } else {
-        selectElement.value = fallbackModels[0];
-        this.selectedModel = fallbackModels[0];
-        localStorage.setItem('groq_model', this.selectedModel);
-      }
+      selectElement.innerHTML = '<option>Failed to load models. Please check your API key and connection.</option>';
     }
   },
 

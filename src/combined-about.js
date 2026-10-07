@@ -232,51 +232,81 @@ const CombinedAboutForm = {
         }
     },
 
-    loadModels() {
+    async loadModels() {
         const llmList = document.getElementById('combined-llm-list');
         if (!llmList) return;
 
         // Clear existing models
-        llmList.innerHTML = '';
+        llmList.innerHTML = '<div>Loading models...</div>';
 
-        // Groq API models as specified
-        const groqModels = [
-            { id: 'qwen/qwen3-32b', name: 'Qwen 3 32B' },
-            { id: 'groq/compound-mini', name: 'Compound Mini' },
-            { id: 'llama-3.1-8b-instant', name: 'Llama 3.1 8B Instant' },
-            { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B Versatile' },
-            { id: 'moonshotai/kimi-k2-instruct-0905', name: 'Kimi K2 Instruct' }
-        ];
-        
-        groqModels.forEach(model => {
-            const modelItem = document.createElement('div');
-            modelItem.className = 'llm-item';
-            modelItem.textContent = model.name;
-            modelItem.dataset.modelId = model.id;
-            
-            // Check if this is the selected model
-            if (window.LLMEntry && window.LLMEntry.selectedModel === model.id) {
-                modelItem.classList.add('selected');
+        try {
+            // Get API key
+            const apiKey = window.LLMEntry?.apiKey || localStorage.getItem('llm_api_key') || localStorage.getItem('groq_api_key');
+            if (!apiKey) {
+                llmList.innerHTML = '<div>No API key available. Please set your API key first.</div>';
+                return;
             }
-            
-            modelItem.addEventListener('click', () => {
-                // Remove selected class from all items
-                llmList.querySelectorAll('.llm-item').forEach(item => {
-                    item.classList.remove('selected');
-                });
-                
-                // Add selected class to clicked item
-                modelItem.classList.add('selected');
-                
-                // Update selected model
-                if (window.LLMEntry) {
-                    window.LLMEntry.selectedModel = model.id;
-                    localStorage.setItem('groq_model', model.id);
+
+            // Fetch models from Groq API
+            const response = await fetch('https://api.groq.com/openai/v1/models', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
                 }
             });
-            
-            llmList.appendChild(modelItem);
-        });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch models');
+            }
+
+            const data = await response.json();
+            const models = data.data || [];
+
+            llmList.innerHTML = '';
+
+            if (models.length === 0) {
+                llmList.innerHTML = '<div>No models available</div>';
+                return;
+            }
+
+            // Sort models by ID for consistent ordering
+            models.sort((a, b) => a.id.localeCompare(b.id));
+
+            // Add models to list
+            models.forEach(model => {
+                const modelItem = document.createElement('div');
+                modelItem.className = 'llm-item';
+                modelItem.textContent = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+                modelItem.dataset.modelId = model.id;
+
+                // Check if this is the selected model
+                if (window.LLMEntry && window.LLMEntry.selectedModel === model.id) {
+                    modelItem.classList.add('selected');
+                }
+
+                modelItem.addEventListener('click', () => {
+                    // Remove selected class from all items
+                    llmList.querySelectorAll('.llm-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    // Add selected class to clicked item
+                    modelItem.classList.add('selected');
+
+                    // Update selected model
+                    if (window.LLMEntry) {
+                        window.LLMEntry.selectedModel = model.id;
+                        localStorage.setItem('groq_model', model.id);
+                    }
+                });
+
+                llmList.appendChild(modelItem);
+            });
+        } catch (error) {
+            console.error('Error loading models:', error);
+            llmList.innerHTML = '<div>Failed to load models. Please check your API key and connection.</div>';
+        }
     },
 
     updateAboutInfo() {
